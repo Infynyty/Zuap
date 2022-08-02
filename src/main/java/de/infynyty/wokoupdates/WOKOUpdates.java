@@ -42,15 +42,17 @@ public class WOKOUpdates {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             final String responseText = response.body();
-            final ArrayList<Insertion> insertions = Insertion.getAllInsertions(responseText);
+            final ArrayList<Insertion> updatedInsertions = Insertion.getAllInsertions(responseText);
 
             if (currentInsertions.isEmpty()) {
-                currentInsertions.addAll(insertions);
+                currentInsertions.addAll(updatedInsertions);
                 log.info("Initial download of all insertions completed successfully!");
                 currentInsertions.forEach(insertion -> System.out.println(insertion.toString()));
             }
 
-            for (final Insertion updatedInsertion : currentInsertions) {
+            // go through all new insertions and check whether they are contained in the current insertions
+            // update, if that isn't the case
+            for (final Insertion updatedInsertion : updatedInsertions) {
                 if (!(currentInsertions.contains(updatedInsertion))) {
                     log.info("New insertion found:\n\n" + updatedInsertion.toString());
                     jda.getTextChannels().get(0).sendMessage("**New insertion found:**\n" + updatedInsertion).queue();
@@ -59,8 +61,17 @@ public class WOKOUpdates {
                     }
                 }
             }
+
+            // go through all current insertions and check that they are still in the updated insertions
+            // remove them, if that isn't the case
+            for (final Insertion currentInsertion : currentInsertions) {
+                if (!(updatedInsertions.contains(currentInsertion))) {
+                    currentInsertions.remove(currentInsertion);
+                    log.info("Removed insertion: " + currentInsertion.toString());
+                }
+            }
             log.info(
-                "Insertions updated at " + Date.from(Instant.now()) + ", numbers of insertions: " + insertions.size()
+                "Insertions updated at " + Date.from(Instant.now()) + ", numbers of insertions: " + updatedInsertions.size()
             );
             TimeUnit.MINUTES.sleep(15);
         }
