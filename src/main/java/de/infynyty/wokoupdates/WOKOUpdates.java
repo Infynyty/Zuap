@@ -16,11 +16,15 @@ import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.jetbrains.annotations.Nullable;
 
 @Log
 public class WOKOUpdates {
     final static Dotenv dotenv = Dotenv.load();
+
+    private final static long MAIN_CHANNEL_ID = 1002178166112137249L;
+    private final static long LOG_CHANNEL_ID = 1004378115751030885L;
 
     public static void main(String[] args) throws InterruptedException, IOException {
         final JDA jda = prepareDiscordBot();
@@ -47,6 +51,9 @@ public class WOKOUpdates {
             if (currentInsertions.isEmpty()) {
                 currentInsertions.addAll(updatedInsertions);
                 log.info("Initial download of all insertions completed successfully!");
+                jda.getChannelById(TextChannel.class, LOG_CHANNEL_ID).sendMessage(
+                    "Initial download of all insertions completed successfully!"
+                ).queue();
                 currentInsertions.forEach(insertion -> System.out.println(insertion.toString()));
             }
 
@@ -54,25 +61,35 @@ public class WOKOUpdates {
             // update, if that isn't the case
             for (final Insertion updatedInsertion : updatedInsertions) {
                 if (!(currentInsertions.contains(updatedInsertion))) {
+                    currentInsertions.add(updatedInsertion);
                     log.info("New insertion found:\n\n" + updatedInsertion.toString());
-                    jda.getTextChannels().get(0).sendMessage("**New insertion found:**\n" + updatedInsertion).queue();
+                    jda.getChannelById(TextChannel.class, MAIN_CHANNEL_ID).sendMessage(
+                        "**New insertion found:**\n" + updatedInsertion
+                    ).queue();
                     if(updatedInsertion.isNextTenantWanted() && updatedInsertion.getRent() < 650) {
-                        jda.getTextChannels().get(0).sendMessage(dotenv.get("PING")).queue();
+                        jda.getChannelById(TextChannel.class, MAIN_CHANNEL_ID).sendMessage(dotenv.get("PING")).queue();
                     }
                 }
             }
 
             // go through all current insertions and check that they are still in the updated insertions
             // remove them, if that isn't the case
-            for (final Insertion currentInsertion : currentInsertions) {
-                if (!(updatedInsertions.contains(currentInsertion))) {
-                    currentInsertions.remove(currentInsertion);
-                    log.info("Removed insertion: " + currentInsertion.toString());
-                }
+            final boolean wasRemoved = currentInsertions.removeIf(
+                currentInsertion -> (!(updatedInsertions.contains(currentInsertion)))
+            );
+            if (wasRemoved) {
+                log.info("One or more insertions were removed.");
+                jda.getChannelById(TextChannel.class, LOG_CHANNEL_ID).sendMessage(
+                    "One or more insertions were removed."
+                ).queue();
             }
+
             log.info(
                 "Insertions updated at " + Date.from(Instant.now()) + ", numbers of insertions: " + updatedInsertions.size()
             );
+            jda.getChannelById(TextChannel.class, LOG_CHANNEL_ID).sendMessage(
+                "Insertions updated at " + Date.from(Instant.now()) + ", numbers of insertions: " + updatedInsertions.size()
+            ).queue();
             TimeUnit.MINUTES.sleep(15);
         }
     }
@@ -88,6 +105,9 @@ public class WOKOUpdates {
         }
         jda.awaitReady();
         log.info("JDA bot ready");
+        jda.getChannelById(TextChannel.class, LOG_CHANNEL_ID).sendMessage(
+            "Bot online."
+        ).queue();
         return jda;
     }
 }
