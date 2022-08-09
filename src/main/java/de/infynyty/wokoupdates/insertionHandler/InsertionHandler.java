@@ -1,5 +1,6 @@
 package de.infynyty.wokoupdates.insertionHandler;
 
+import de.infynyty.wokoupdates.WOKOUpdates;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
@@ -12,9 +13,6 @@ import java.util.ArrayList;
 
 @Log
 public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates.insertion.Insertion> {
-
-    private final static long MAIN_CHANNEL_ID = 1002178166112137249L;
-    private final static long LOG_CHANNEL_ID = 1004378115751030885L;
 
     private final ArrayList<Insertion> currentInsertions = new ArrayList<>();
 
@@ -48,7 +46,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates
         if (currentInsertions.isEmpty()) {
             currentInsertions.addAll(updatedInsertions);
             log.info("Initial download of all insertions completed successfully!");
-            jda.getChannelById(TextChannel.class, LOG_CHANNEL_ID).sendMessage(
+            jda.getChannelById(TextChannel.class, WOKOUpdates.getLOG_CHANNEL_ID()).sendMessage(
                 "Initial download of all insertions completed successfully!"
             ).queue();
             currentInsertions.forEach(insertion -> System.out.println(insertion.toString()));
@@ -60,11 +58,11 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates
             if (!(currentInsertions.contains(updatedInsertion))) {
                 currentInsertions.add(updatedInsertion);
                 log.info("New insertion found:\n\n" + updatedInsertion.toString());
-                jda.getChannelById(TextChannel.class, MAIN_CHANNEL_ID).sendMessage(
+                jda.getChannelById(TextChannel.class, WOKOUpdates.getMAIN_CHANNEL_ID()).sendMessage(
                     "**New insertion found:**\n" + updatedInsertion
                 ).queue();
                 if(updatedInsertion.isNextTenantWanted() && updatedInsertion.getRent() < 650) {
-                    jda.getChannelById(TextChannel.class, MAIN_CHANNEL_ID).sendMessage(dotenv.get("PING")).queue();
+                    jda.getChannelById(TextChannel.class, WOKOUpdates.getMAIN_CHANNEL_ID()).sendMessage(dotenv.get("PING")).queue();
                 }
             }
         }
@@ -76,7 +74,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates
         );
         if (wasRemoved) {
             log.info("One or more insertions were removed.");
-            jda.getChannelById(TextChannel.class, LOG_CHANNEL_ID).sendMessage(
+            jda.getChannelById(TextChannel.class, WOKOUpdates.getLOG_CHANNEL_ID()).sendMessage(
                 "One or more insertions were removed."
             ).queue();
         }
@@ -84,7 +82,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates
         log.info(
             "Insertions updated at " + Date.from(Instant.now()) + ", numbers of insertions: " + updatedInsertions.size()
         );
-        jda.getChannelById(TextChannel.class, LOG_CHANNEL_ID).sendMessage(
+        jda.getChannelById(TextChannel.class, WOKOUpdates.getLOG_CHANNEL_ID()).sendMessage(
             "Insertions updated at " + Date.from(Instant.now()) + ", numbers of insertions: " + updatedInsertions.size()
         ).queue();
     }

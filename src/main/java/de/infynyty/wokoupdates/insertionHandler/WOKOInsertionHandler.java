@@ -16,7 +16,7 @@ import java.util.ArrayList;
 @Log
 public class WOKOInsertionHandler extends InsertionHandler<WOKOInsertion> {
 
-    protected WOKOInsertionHandler(
+    public WOKOInsertionHandler(
         final JDA jda,
         final Dotenv dotenv
     ) {

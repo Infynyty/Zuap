@@ -28,7 +28,7 @@ public abstract class Insertion {
      * @param html The given html file.
      * @throws NumberFormatException If the insertion number cannot be read, an object cannot be constructed successfully.
      */
-    protected Insertion(final String html) throws NumberFormatException {
+    public Insertion(final String html) throws NumberFormatException {
         this.insertionNumber = setInsertionNumber(html);
         this.postDate = setDate(html, 0);
         this.moveInDate = setDate(html, 1);

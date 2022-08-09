@@ -18,9 +18,11 @@ public class WOKOInsertion extends Insertion {
      *
      * @throws NumberFormatException If the insertion number cannot be read, an object cannot be constructed successfully.
      */
-    protected WOKOInsertion(final String html) throws NumberFormatException {
+    public WOKOInsertion(final String html) throws NumberFormatException {
         super(html);
     }
+
+    //TODO: Use html parser instead of regex
 
     @Override
     protected int setRent(final String html) {

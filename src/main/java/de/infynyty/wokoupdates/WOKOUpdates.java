@@ -15,6 +15,7 @@ import java.util.zip.GZIPInputStream;
 import de.infynyty.wokoupdates.insertion.Insertion;
 import de.infynyty.wokoupdates.insertionHandler.WOKOInsertionHandler;
 import io.github.cdimascio.dotenv.Dotenv;
+import lombok.Getter;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -25,34 +26,20 @@ import org.jetbrains.annotations.Nullable;
 public class WOKOUpdates {
     final static Dotenv dotenv = Dotenv.load();
 
+    @Getter
     private final static long MAIN_CHANNEL_ID = 1002178166112137249L;
+    @Getter
     private final static long LOG_CHANNEL_ID = 1004378115751030885L;
 
     public static void main(String[] args) throws InterruptedException, IOException {
         final JDA jda = prepareDiscordBot();
         if (jda == null) return;
 
-        final ArrayList<Insertion> currentInsertions = new ArrayList<>();
-        parseWebsiteData(jda, currentInsertions);
+        parseWebsiteData(jda);
     }
 
-    private static void parseWebsiteData(JDA jda, ArrayList<Insertion> currentInsertions)
-        throws IOException, InterruptedException {
-        final HttpClient wgZimmerClient = HttpClient.newHttpClient();
-        HttpRequest wgZimmerRequest = HttpRequest.newBuilder()
-            .uri(URI.create("https://www.wgzimmer.ch/wgzimmer/search/mate.html?"))
-            .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8")
-            .header("Accept-Encoding", "gzip, deflate, br")
-            .header("Content-Type", "application/x-www-form-urlencoded")
-            .POST(HttpRequest.BodyPublishers.ofString("query=&priceMin=200&priceMax=650&state=all&permanent=all&student=true&typeofwg=all&orderBy=%40sortDate&orderDir=descending&startSearchMate=true&wgStartSearch=true&start=0"))
-            .build();
+    private static void parseWebsiteData(final JDA jda) throws InterruptedException {
 
-        HttpResponse<byte[]> wgZimmerResponse = wgZimmerClient.send(wgZimmerRequest,
-            HttpResponse.BodyHandlers.ofByteArray());
-
-        GZIPInputStream gzipInputStream = new GZIPInputStream(new ByteArrayInputStream(wgZimmerResponse.body()));
-        String output = new String(gzipInputStream.readAllBytes());
-        System.out.println("Output: " + output);
 
         final WOKOInsertionHandler insertionHandler = new WOKOInsertionHandler(jda, dotenv);
 

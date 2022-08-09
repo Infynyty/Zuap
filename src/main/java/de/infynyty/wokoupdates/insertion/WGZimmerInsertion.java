@@ -11,7 +11,7 @@ public class WGZimmerInsertion extends Insertion {
      *
      * @throws NumberFormatException If the insertion number cannot be read, an object cannot be constructed successfully.
      */
-    protected WGZimmerInsertion(final String html) throws NumberFormatException {
+    public WGZimmerInsertion(final String html) throws NumberFormatException {
         super(html);
     }
 
