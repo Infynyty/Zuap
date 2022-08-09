@@ -1,4 +1,4 @@
-package de.infynyty.wokoupdates;
+package de.infynyty.wokoupdates.insertion;
 
 import lombok.extern.java.Log;
 
@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Log
-public class WOKOInsertion extends Insertion{
+public class WOKOInsertion extends Insertion {
     /**
      * Constructs a new insertion object from a given html string.
      *

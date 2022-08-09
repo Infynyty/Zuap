@@ -1,5 +1,7 @@
-package de.infynyty.wokoupdates;
+package de.infynyty.wokoupdates.insertionHandler;
 
+import de.infynyty.wokoupdates.insertion.WOKOInsertion;
+import de.infynyty.wokoupdates.insertionHandler.InsertionHandler;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;

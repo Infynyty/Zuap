@@ -1,4 +1,4 @@
-package de.infynyty.wokoupdates;
+package de.infynyty.wokoupdates.insertionHandler;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
@@ -6,14 +6,12 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.io.IOException;
-import java.net.URI;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 @Log
-public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates.Insertion> {
+public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates.insertion.Insertion> {
 
     private final static long MAIN_CHANNEL_ID = 1002178166112137249L;
     private final static long LOG_CHANNEL_ID = 1004378115751030885L;
@@ -32,7 +30,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates
 
     protected abstract ArrayList<Insertion> getInsertionsFromHTML(final String html);
 
-    protected void updateCurrentInsertions() {
+    public void updateCurrentInsertions() {
 
         final ArrayList<Insertion> updatedInsertions;
         try {

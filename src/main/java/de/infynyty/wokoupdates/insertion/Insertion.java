@@ -1,12 +1,8 @@
-package de.infynyty.wokoupdates;
+package de.infynyty.wokoupdates.insertion;
 
-import java.net.URI;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import lombok.Getter;
 import lombok.extern.java.Log;

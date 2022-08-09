@@ -8,13 +8,12 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.sql.Date;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
+import de.infynyty.wokoupdates.insertion.Insertion;
+import de.infynyty.wokoupdates.insertionHandler.WOKOInsertionHandler;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
