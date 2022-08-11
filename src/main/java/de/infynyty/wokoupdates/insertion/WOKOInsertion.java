@@ -1,6 +1,8 @@
 package de.infynyty.wokoupdates.insertion;
 
 import lombok.extern.java.Log;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,31 +13,42 @@ import java.util.regex.Pattern;
 
 @Log
 public class WOKOInsertion extends Insertion {
+
+    /**
+     * This symbol is used on the WOKO-website to denote that the rent is rounded and that there are no centimes.
+     */
+    private static final String ROUNDED_RENT = ".--";
+
     /**
      * Constructs a new insertion object from a given html string.
      *
-     * @param html The given html file.
+     * @param element The given html file.
      *
      * @throws NumberFormatException If the insertion number cannot be read, an object cannot be constructed successfully.
      */
-    public WOKOInsertion(final String html) throws NumberFormatException {
-        super(html);
+    public WOKOInsertion(final Element element) throws NumberFormatException {
+        super(element);
     }
 
     //TODO: Use html parser instead of regex
 
     @Override
-    protected int setRent(final String html) {
-        final String substringStart = "<div class=\"preis\">";
-        final int indexStart = html.indexOf(substringStart) + substringStart.length();
-        final String substringEnd = ".--</div>";
-        final int indexEnd = html.indexOf(substringEnd);
-        final String number = html.substring(indexStart, indexEnd);
+    protected int setRent() {
+        final Elements priceElements = super.element.getElementsByClass("preis");
+        String price = priceElements.html();
         try {
-            return Integer.parseInt(number);
+            price = price.substring(0, price.length() - ROUNDED_RENT.length());
+        } catch (IndexOutOfBoundsException e) {
+            log.severe("Rent could not be parsed because of an incorrectly formatted string");
+            log.severe("Rent string: \n\n" + price + "\n\n");
+            log.severe("HTML: \n\n" + super.element);
+            return -1;
+        }
+        try {
+            return Integer.parseInt(price);
         } catch (NumberFormatException e) {
-            log.warning("Rent could not be parsed from html!");
-            log.warning("Tried parsing: " + number);
+            log.severe("Rent could not be parsed because of an incorrectly formatted string");
+            log.warning("Tried parsing: " + price);
             return -1;
         }
     }
@@ -61,10 +74,15 @@ public class WOKOInsertion extends Insertion {
     }
 
     @Override
-    protected int setInsertionNumber(final String html) throws NumberFormatException {
-        final String substring = "/de/zimmer-in-zuerich-details/";
-        final int index = html.indexOf(substring) + substring.length();
-        final String number = html.substring(index, index + 4);
+    protected int setInsertionNumber() throws NumberFormatException {
+        final Elements linkElements = super.element.getElementsByTag("a");
+        final String link = linkElements.attr("href");
+
+        final Pattern pattern = Pattern.compile("\\d+");
+        final Matcher matcher = pattern.matcher(link);
+        matcher.find();
+        final String number = matcher.group();
+
         try {
             return Integer.parseInt(number);
         } catch (NumberFormatException e) {
@@ -72,20 +90,5 @@ public class WOKOInsertion extends Insertion {
             log.severe("Tried parsing: " + number);
             throw new NumberFormatException();
         }
-    }
-
-    @Override
-    public ArrayList<Insertion> getAllInsertions(final String html) {
-        final String[] splitText = html.split("<div class=\"inserat\">");
-        final ArrayList<Insertion> insertions = new ArrayList<>();
-        for (int i = 0; i < splitText.length; i++) {
-            if (i == 0) continue;
-            try {
-                insertions.add(new WOKOInsertion(splitText[i]));
-            } catch (NumberFormatException e) {
-                log.warning("Insertion could not be included because of a missing insertion number!");
-            }
-        }
-        return insertions;
     }
 }

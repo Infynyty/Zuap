@@ -6,6 +6,7 @@ import java.util.Date;
 
 import lombok.Getter;
 import lombok.extern.java.Log;
+import org.jsoup.nodes.Element;
 
 /**
  * This class contains all information for an insertion on the  <a href="https://www.woko.ch">WOKO platform</a>.
@@ -15,6 +16,8 @@ import lombok.extern.java.Log;
 @Getter
 @Log
 public abstract class Insertion {
+
+    protected final Element element;
     private final int insertionNumber;
     private final Date postDate;
     private final Date moveInDate;
@@ -25,15 +28,19 @@ public abstract class Insertion {
     /**
      * Constructs a new insertion object from a given html string.
      *
-     * @param html The given html file.
-     * @throws NumberFormatException If the insertion number cannot be read, an object cannot be constructed successfully.
+     * @param element
+     * @param html    The given html file.
+     *
+     * @throws NumberFormatException If the insertion number cannot be read, an object cannot be constructed
+     *                               successfully.
      */
-    public Insertion(final String html) throws NumberFormatException {
-        this.insertionNumber = setInsertionNumber(html);
-        this.postDate = setDate(html, 0);
-        this.moveInDate = setDate(html, 1);
-        this.isNextTenantWanted = setIsNewTenantWanted(html);
-        this.rent = setRent(html);
+    public Insertion(final Element element) throws NumberFormatException {
+        this.element = element;
+        this.insertionNumber = setInsertionNumber();
+        this.postDate = setDate(element.html(), 0);
+        this.moveInDate = setDate(element.html(), 1);
+        this.isNextTenantWanted = setIsNewTenantWanted(element.html());
+        this.rent = setRent();
     }
 
     /**
@@ -42,7 +49,7 @@ public abstract class Insertion {
      * @param html The given html.
      * @return The rent or {@value -1}, if it was not possible to parse the rent.
      */
-    protected abstract int setRent(final String html);
+    protected abstract int setRent();
 
     /**
      * Returns whether a new tenant or a subtenant is wanted.
@@ -68,15 +75,7 @@ public abstract class Insertion {
      * @return The insertion number.
      * @throws NumberFormatException If the insertion number cannot be parsed from the given html, an exception is thrown.
      */
-    protected abstract int setInsertionNumber(final String html) throws NumberFormatException;
-
-    /**
-     * Creates objects for all Insertions found in an html-String.
-     *
-     * @param html The given html
-     * @return An array of all Insertions found.
-     */
-    public abstract ArrayList<Insertion> getAllInsertions(final String html);
+    protected abstract int setInsertionNumber() throws NumberFormatException;
 
 
 

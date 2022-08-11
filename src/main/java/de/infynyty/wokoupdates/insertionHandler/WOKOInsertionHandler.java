@@ -5,6 +5,10 @@ import de.infynyty.wokoupdates.insertionHandler.InsertionHandler;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.net.URI;
@@ -38,16 +42,16 @@ public class WOKOInsertionHandler extends InsertionHandler<WOKOInsertion> {
 
     @Override
     protected ArrayList<WOKOInsertion> getInsertionsFromHTML(final String html) {
-        final String[] splitText = html.split("<div class=\"inserat\">");
+        Document document = Jsoup.parse(html);
+        Elements elements = document.getElementsByClass("inserat");
         final ArrayList<WOKOInsertion> insertions = new ArrayList<>();
-        for (int i = 0; i < splitText.length; i++) {
-            if (i == 0) continue;
+        elements.forEach(element -> {
             try {
-                insertions.add(new WOKOInsertion(splitText[i]));
+                insertions.add(new WOKOInsertion(element));
             } catch (NumberFormatException e) {
-                log.warning("Insertion could not be included because of a missing insertion number!");
+            log.warning("Insertion could not be included because of a missing insertion number!");
             }
-        }
+        });
         return insertions;
     }
 }
