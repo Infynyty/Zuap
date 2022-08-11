@@ -40,8 +40,8 @@ public class WOKOInsertionHandler extends InsertionHandler<WOKOInsertion> {
 
     @Override
     protected ArrayList<WOKOInsertion> getInsertionsFromHTML(final String html) {
-        Document document = Jsoup.parse(html);
-        Elements elements = document.getElementsByClass("inserat");
+        final Document document = Jsoup.parse(html);
+        final Elements elements = document.getElementsByClass("inserat");
         final ArrayList<WOKOInsertion> insertions = new ArrayList<>();
         elements.forEach(element -> {
             try {

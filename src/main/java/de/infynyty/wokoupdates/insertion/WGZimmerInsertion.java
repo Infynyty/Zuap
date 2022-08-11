@@ -2,6 +2,7 @@ package de.infynyty.wokoupdates.insertion;
 
 import org.jsoup.nodes.Element;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -29,7 +30,7 @@ public class WGZimmerInsertion extends Insertion {
 
     @Override
     protected Date setDate(final String html, final int index) {
-        return null;
+        return Date.from(Instant.now());
     }
 
     @Override

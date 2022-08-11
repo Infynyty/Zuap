@@ -6,6 +6,8 @@ import java.util.Date;
 
 import lombok.Getter;
 import lombok.extern.java.Log;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jsoup.nodes.Element;
 
 /**
@@ -17,6 +19,7 @@ import org.jsoup.nodes.Element;
 @Log
 public abstract class Insertion {
 
+    @NotNull
     protected final Element element;
     private final int insertionNumber;
     private final Date postDate;

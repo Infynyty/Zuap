@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
 import de.infynyty.wokoupdates.insertion.Insertion;
+import de.infynyty.wokoupdates.insertionHandler.WGZimmerHandler;
 import de.infynyty.wokoupdates.insertionHandler.WOKOInsertionHandler;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.Getter;
@@ -41,10 +42,12 @@ public class WOKOUpdates {
     private static void parseWebsiteData(final JDA jda) throws InterruptedException {
 
 
-        final WOKOInsertionHandler insertionHandler = new WOKOInsertionHandler(jda, dotenv);
+        final WOKOInsertionHandler wokoInsertionHandler = new WOKOInsertionHandler(jda, dotenv);
+        final WGZimmerHandler wgZimmerHandler = new WGZimmerHandler(jda, dotenv);
 
         while (true) {
-            insertionHandler.updateCurrentInsertions();
+            wokoInsertionHandler.updateCurrentInsertions();
+            wgZimmerHandler.updateCurrentInsertions();
             TimeUnit.MINUTES.sleep(UPDATE_DELAY_IN_MINS);
         }
     }

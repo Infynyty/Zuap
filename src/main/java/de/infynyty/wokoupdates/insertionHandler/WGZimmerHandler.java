@@ -2,8 +2,13 @@ package de.infynyty.wokoupdates.insertionHandler;
 
 import de.infynyty.wokoupdates.insertion.Insertion;
 import de.infynyty.wokoupdates.insertion.WGZimmerInsertion;
+import de.infynyty.wokoupdates.insertion.WOKOInsertion;
 import io.github.cdimascio.dotenv.Dotenv;
+import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -14,11 +19,13 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.zip.GZIPInputStream;
 
+@Log
 public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
-    protected WGZimmerHandler(final JDA jda, final Dotenv dotenv) {
+    public WGZimmerHandler(final JDA jda, final Dotenv dotenv) {
         super(jda, dotenv);
     }
 
+    //TODO: Make it possible to change search variables
     @Override
     protected String pullUpdatedHTML() throws IOException, InterruptedException {
         final HttpClient wgZimmerClient = HttpClient.newHttpClient();
@@ -33,12 +40,23 @@ public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
         HttpResponse<byte[]> wgZimmerResponse = wgZimmerClient.send(wgZimmerRequest,
             HttpResponse.BodyHandlers.ofByteArray());
 
+
         GZIPInputStream gzipInputStream = new GZIPInputStream(new ByteArrayInputStream(wgZimmerResponse.body()));
         return new String(gzipInputStream.readAllBytes());
     }
 
     @Override
     protected ArrayList<WGZimmerInsertion> getInsertionsFromHTML(final String html) {
-        return null;
+        final Document document = Jsoup.parse(html);
+        final Elements elements = document.getElementsByClass("search-result-entry search-mate-entry");
+        final ArrayList<WGZimmerInsertion> insertions = new ArrayList<>();
+        elements.forEach(element -> {
+            try {
+                insertions.add(new WGZimmerInsertion(element));
+            } catch (NumberFormatException e) {
+                log.warning("Insertion could not be included because of a missing insertion number!");
+            }
+        });
+        return insertions;
     }
 }
