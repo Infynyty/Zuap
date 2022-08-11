@@ -24,14 +24,14 @@ import org.jetbrains.annotations.Nullable;
 
 @Log
 public class WOKOUpdates {
-    final static Dotenv dotenv = Dotenv.load();
 
-    @Getter
-    private final static long MAIN_CHANNEL_ID = 1002178166112137249L;
-    @Getter
-    private final static long LOG_CHANNEL_ID = 1004378115751030885L;
+    public final static long MAIN_CHANNEL_ID = 1002178166112137249L;
+    public final static long LOG_CHANNEL_ID = 1004378115751030885L;
+    public final static int UPDATE_DELAY_IN_MINS = 15;
 
-    public static void main(String[] args) throws InterruptedException, IOException {
+    private final static Dotenv dotenv = Dotenv.load();
+
+    public static void main(String[] args) throws InterruptedException {
         final JDA jda = prepareDiscordBot();
         if (jda == null) return;
 
@@ -45,7 +45,7 @@ public class WOKOUpdates {
 
         while (true) {
             insertionHandler.updateCurrentInsertions();
-            TimeUnit.MINUTES.sleep(15);
+            TimeUnit.MINUTES.sleep(UPDATE_DELAY_IN_MINS);
         }
     }
 

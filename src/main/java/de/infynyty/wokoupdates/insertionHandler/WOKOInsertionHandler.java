@@ -1,13 +1,11 @@
 package de.infynyty.wokoupdates.insertionHandler;
 
 import de.infynyty.wokoupdates.insertion.WOKOInsertion;
-import de.infynyty.wokoupdates.insertionHandler.InsertionHandler;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;

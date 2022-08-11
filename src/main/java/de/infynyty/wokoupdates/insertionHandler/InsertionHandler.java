@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 @Log
 public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates.insertion.Insertion> {
@@ -28,25 +29,24 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates
 
     protected abstract ArrayList<Insertion> getInsertionsFromHTML(final String html);
 
-    public void updateCurrentInsertions() {
-
+    public void updateCurrentInsertions() throws InterruptedException {
         final ArrayList<Insertion> updatedInsertions;
+
         try {
             updatedInsertions = new ArrayList<>(getInsertionsFromHTML(pullUpdatedHTML()));
-        } catch (IOException e) {
-            log.severe("An IO exception occurred while trying to update the insertions.");
+        } catch (IOException | InterruptedException e) {
+            log.severe("An exception occurred while trying to update the insertions.");
             log.severe(e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            log.severe("A Runtime exception occurred while trying to update the insertions.");
-            log.severe(e.getMessage());
+            log.severe("Retrying in 15 minutes.");
+            TimeUnit.MINUTES.sleep(WOKOUpdates.UPDATE_DELAY_IN_MINS);
+            updateCurrentInsertions();
             return;
         }
 
         if (currentInsertions.isEmpty()) {
             currentInsertions.addAll(updatedInsertions);
             log.info("Initial download of all insertions completed successfully!");
-            jda.getChannelById(TextChannel.class, WOKOUpdates.getLOG_CHANNEL_ID()).sendMessage(
+            jda.getChannelById(TextChannel.class, WOKOUpdates.LOG_CHANNEL_ID).sendMessage(
                 "Initial download of all insertions completed successfully!"
             ).queue();
             currentInsertions.forEach(insertion -> System.out.println(insertion.toString()));
@@ -58,11 +58,11 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates
             if (!(currentInsertions.contains(updatedInsertion))) {
                 currentInsertions.add(updatedInsertion);
                 log.info("New insertion found:\n\n" + updatedInsertion.toString());
-                jda.getChannelById(TextChannel.class, WOKOUpdates.getMAIN_CHANNEL_ID()).sendMessage(
+                jda.getChannelById(TextChannel.class, WOKOUpdates.MAIN_CHANNEL_ID).sendMessage(
                     "**New insertion found:**\n" + updatedInsertion
                 ).queue();
                 if(updatedInsertion.isNextTenantWanted() && updatedInsertion.getRent() < 650) {
-                    jda.getChannelById(TextChannel.class, WOKOUpdates.getMAIN_CHANNEL_ID()).sendMessage(dotenv.get("PING")).queue();
+                    jda.getChannelById(TextChannel.class, WOKOUpdates.MAIN_CHANNEL_ID).sendMessage(dotenv.get("PING")).queue();
                 }
             }
         }
@@ -74,7 +74,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates
         );
         if (wasRemoved) {
             log.info("One or more insertions were removed.");
-            jda.getChannelById(TextChannel.class, WOKOUpdates.getLOG_CHANNEL_ID()).sendMessage(
+            jda.getChannelById(TextChannel.class, WOKOUpdates.LOG_CHANNEL_ID).sendMessage(
                 "One or more insertions were removed."
             ).queue();
         }
@@ -82,7 +82,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates
         log.info(
             "Insertions updated at " + Date.from(Instant.now()) + ", numbers of insertions: " + updatedInsertions.size()
         );
-        jda.getChannelById(TextChannel.class, WOKOUpdates.getLOG_CHANNEL_ID()).sendMessage(
+        jda.getChannelById(TextChannel.class, WOKOUpdates.LOG_CHANNEL_ID).sendMessage(
             "Insertions updated at " + Date.from(Instant.now()) + ", numbers of insertions: " + updatedInsertions.size()
         ).queue();
     }
