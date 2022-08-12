@@ -16,7 +16,7 @@ public class WOKOInsertion extends Insertion {
     /**
      * This symbol is used on the WOKO-website to denote that the rent is rounded and that there are no centimes.
      */
-    private static final String ROUNDED_RENT = ".--";
+    private static final String PRICE_SUFFIX = ".--";
 
     /**
      * Constructs a new insertion object from a given html string.
@@ -36,7 +36,7 @@ public class WOKOInsertion extends Insertion {
         final Elements priceElements = super.element.getElementsByClass("preis");
         String price = priceElements.html();
         try {
-            price = price.substring(0, price.length() - ROUNDED_RENT.length());
+            price = price.substring(0, price.length() - PRICE_SUFFIX.length());
         } catch (IndexOutOfBoundsException e) {
             log.severe("Rent could not be parsed because of an incorrectly formatted string");
             log.severe("Rent string: \n\n" + price + "\n\n");
