@@ -11,78 +11,167 @@ import java.sql.Date;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 @Log
 public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates.insertion.Insertion> {
 
+    /**
+     * Contains all locally saved insertions.
+     */
     private final ArrayList<Insertion> currentInsertions = new ArrayList<>();
+    /**
+     * Used to compare updated insertions with locally saved info. Should be empty before updating local insertions.
+     */
+    private final ArrayList<Insertion> updatedInsertions = new ArrayList<>();
 
     private final JDA jda;
     private final Dotenv dotenv;
 
+    /**
+     * Creates an insertion handler for a new website.
+     *
+     * @param jda    A reference to the discord bot.
+     * @param dotenv The file containing environment variables.
+     */
     protected InsertionHandler(final JDA jda, final Dotenv dotenv) {
         this.jda = jda;
         this.dotenv = dotenv;
     }
 
+    /**
+     * Update the html data containing all insertions.
+     *
+     * @return The updated html.
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
     protected abstract String pullUpdatedHTML() throws IOException, InterruptedException;
 
+    /**
+     * Parses the entire html file, so that all insertions are read into {@link Insertion} objects.
+     *
+     * @param html The html containing all insertions.
+     *
+     * @return A list containing all parsed insertions.
+     *
+     * @throws IllegalStateException If the link to a given insertion cannot be parsed an exception is thrown because
+     *                               the links are considered critical information for an {@link Insertion} object.
+     */
     protected abstract ArrayList<Insertion> getInsertionsFromHTML(final String html) throws IllegalStateException;
 
+    /**
+     * Updates the currently saved insertions. Online changes to insertions will be mirrored locally in
+     * {@link InsertionHandler#currentInsertions}.
+     *
+     * @throws InterruptedException
+     */
     public void updateCurrentInsertions() throws InterruptedException {
-        final ArrayList<Insertion> updatedInsertions;
-        try {
-            updatedInsertions = new ArrayList<>(getInsertionsFromHTML(pullUpdatedHTML()));
-        } catch (IOException | InterruptedException | IllegalStateException e) {
-            log.severe("An exception occurred while trying to update the insertions.");
-            log.severe(e.getMessage());
-            log.severe("Retrying in 15 minutes.");
-            TimeUnit.MINUTES.sleep(WOKOUpdates.UPDATE_DELAY_IN_MINS);
-            updateCurrentInsertions();
-            return;
-        }
+        //clear local list of updated insertions every time this method is called
+        updatedInsertions.clear();
+        parseUpdatedInsertions();
 
         if (currentInsertions.isEmpty()) {
-            currentInsertions.addAll(updatedInsertions);
-            log.info("Initial download of all insertions completed successfully!");
-            jda.getChannelById(TextChannel.class, WOKOUpdates.LOG_CHANNEL_ID).sendMessage(
-                "Initial download of all insertions completed successfully!"
-            ).queue();
-            currentInsertions.forEach(insertion -> System.out.println(insertion.toString()));
+            addInitialInsertions();
+            return;
         }
+        addNewInsertions();
+        removeDeletedInsertions();
 
-        // go through all new insertions and check whether they are contained in the current insertions
-        // update, if that isn't the case
-        for (final Insertion updatedInsertion : updatedInsertions) {
-            if (!(currentInsertions.contains(updatedInsertion))) {
-                currentInsertions.add(updatedInsertion);
-                log.info("New insertion found:\n\n" + updatedInsertion.toString());
-                jda.getChannelById(TextChannel.class, WOKOUpdates.MAIN_CHANNEL_ID).sendMessage(
-                    "**New insertion found:**\n" + updatedInsertion
-                ).queue();
-                if(updatedInsertion.isNextTenantWanted() && updatedInsertion.getRent() < 650) {
-                    jda.getChannelById(TextChannel.class, WOKOUpdates.MAIN_CHANNEL_ID).sendMessage(dotenv.get("PING")).queue();
-                }
-            }
+        logUpdates(
+            Level.INFO,
+            "Insertions updated at " + Date.from(Instant.now()) + ", numbers of insertions: " + updatedInsertions.size(),
+            WOKOUpdates.LOG_CHANNEL_ID
+        );
+    }
+
+    /**
+     * Logs any information on discord and using the Java Logger.
+     *
+     * @param level        The level of the information.
+     * @param logText      The message.
+     * @param logChannelId The discord channel that should be used to post this information.
+     */
+    private void logUpdates(final Level level, final String logText, final long logChannelId) {
+        log.log(level, logText);
+        if (jda.getChannelById(TextChannel.class, logChannelId) == null) {
+            log.log(Level.SEVERE, "Discord channel could not be found!");
+            return;
         }
+        jda.getChannelById(TextChannel.class, logChannelId).sendMessage(logText).queue();
+    }
 
+    /**
+     * Removes any local insertion that does not exist online anymore.
+     */
+    private void removeDeletedInsertions() {
         // go through all current insertions and check that they are still in the updated insertions
         // remove them, if that isn't the case
         final boolean wasRemoved = currentInsertions.removeIf(
             currentInsertion -> (!(updatedInsertions.contains(currentInsertion)))
         );
         if (wasRemoved) {
-            log.info("One or more insertions were removed.");
-            jda.getChannelById(TextChannel.class, WOKOUpdates.LOG_CHANNEL_ID).sendMessage(
-                "One or more insertions were removed."
-            ).queue();
+            logUpdates(Level.INFO, "One or more insertions were removed.", WOKOUpdates.LOG_CHANNEL_ID);
         }
+    }
 
-        log.info(
-            "Insertions updated at " + Date.from(Instant.now()) + ", numbers of insertions: " + updatedInsertions.size()
+    /**
+     * Add every new insertion to {@link InsertionHandler#currentInsertions a local list}.
+     */
+    private void addNewInsertions() {
+        for (final Insertion updatedInsertion : updatedInsertions) {
+            if (!(currentInsertions.contains(updatedInsertion))) {
+                currentInsertions.add(updatedInsertion);
+                logUpdates(
+                    Level.INFO,
+                    "New insertion found:\n\n" + updatedInsertion.toString(),
+                    WOKOUpdates.MAIN_CHANNEL_ID
+                );
+                if (updatedInsertion.isNextTenantWanted() && updatedInsertion.getRent() < 650) {
+                    jda.getChannelById(
+                        TextChannel.class,
+                        WOKOUpdates.MAIN_CHANNEL_ID
+                    ).sendMessage(dotenv.get("PING")).queue();
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds all insertions without checking for duplicates, if there are no insertions saved locally.
+     */
+    private void addInitialInsertions() {
+        // go through all new insertions and check whether they are contained in the current insertions
+        // update, if that isn't the case
+        currentInsertions.addAll(updatedInsertions);
+        logUpdates(
+            Level.INFO,
+            "Initial download of all insertions completed successfully!",
+            WOKOUpdates.LOG_CHANNEL_ID
         );
-        jda.getChannelById(TextChannel.class, WOKOUpdates.LOG_CHANNEL_ID).sendMessage(
-            "Insertions updated at " + Date.from(Instant.now()) + ", numbers of insertions: " + updatedInsertions.size()
-        ).queue();
+        currentInsertions.forEach(insertion -> System.out.println(insertion.toString()));
+    }
+
+    /**
+     * Tries to read all insertions from the updated html file. On failure retries happen automatically after
+     * {@link WOKOUpdates#UPDATE_DELAY_IN_MINS}.
+     *
+     * @throws InterruptedException
+     */
+    private void parseUpdatedInsertions() throws InterruptedException {
+        try {
+            updatedInsertions.addAll(getInsertionsFromHTML(pullUpdatedHTML()));
+        } catch (IOException | InterruptedException | IllegalStateException e) {
+            logUpdates(
+                Level.SEVERE,
+                "An exception occurred while trying to update the insertions." +
+                    e.getMessage() +
+                    "Retrying in 15 minutes.",
+                WOKOUpdates.LOG_CHANNEL_ID
+            );
+            TimeUnit.MINUTES.sleep(WOKOUpdates.UPDATE_DELAY_IN_MINS);
+            parseUpdatedInsertions();
+        }
     }
 }
