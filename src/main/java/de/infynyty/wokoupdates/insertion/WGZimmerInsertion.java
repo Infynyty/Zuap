@@ -1,21 +1,22 @@
 package de.infynyty.wokoupdates.insertion;
 
 import lombok.extern.java.Log;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Log
 public class WGZimmerInsertion extends Insertion {
 
     private static final String PRICE_PREFIX = "SFr. ";
+    private static final String PROTOCOL = "https://";
+    private static final String DOMAIN = "www.wgzimmer.ch";
 
     /**
      * Constructs a new insertion object from a given html string.
@@ -24,8 +25,17 @@ public class WGZimmerInsertion extends Insertion {
      *
      * @throws NumberFormatException If the insertion number cannot be read, an object cannot be constructed successfully.
      */
-    public WGZimmerInsertion(final Element element) throws NumberFormatException {
+    public WGZimmerInsertion(@NotNull final Element element) throws IllegalStateException {
         super(element);
+    }
+
+    @Override
+    protected @NotNull URL setInsertionURL() throws IllegalStateException {
+        try {
+            return new URL(PROTOCOL + DOMAIN + element.getElementsByTag("a").get(1).attr("href"));
+        } catch (IndexOutOfBoundsException | MalformedURLException e) {
+            throw new IllegalStateException("URI to insertion could not be parsed.\n\n" + e.getMessage());
+        }
     }
 
     @Override
@@ -55,7 +65,7 @@ public class WGZimmerInsertion extends Insertion {
     }
 
     @Override
-    protected Date setDate(final String html, final int index) {
+    protected @NotNull Date setMoveInDate() {
         final String moveInDate = element
             .getElementsByClass("from-date")
             .get(0)
@@ -69,10 +79,5 @@ public class WGZimmerInsertion extends Insertion {
             e.printStackTrace();
             return new Date(0);
         }
-    }
-
-    @Override
-    protected int setInsertionNumber() throws NumberFormatException {
-        return 0;
     }
 }

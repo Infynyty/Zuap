@@ -27,14 +27,13 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates
 
     protected abstract String pullUpdatedHTML() throws IOException, InterruptedException;
 
-    protected abstract ArrayList<Insertion> getInsertionsFromHTML(final String html);
+    protected abstract ArrayList<Insertion> getInsertionsFromHTML(final String html) throws IllegalStateException;
 
     public void updateCurrentInsertions() throws InterruptedException {
         final ArrayList<Insertion> updatedInsertions;
-
         try {
             updatedInsertions = new ArrayList<>(getInsertionsFromHTML(pullUpdatedHTML()));
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException | InterruptedException | IllegalStateException e) {
             log.severe("An exception occurred while trying to update the insertions.");
             log.severe(e.getMessage());
             log.severe("Retrying in 15 minutes.");

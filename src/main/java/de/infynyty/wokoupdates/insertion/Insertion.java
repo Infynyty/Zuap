@@ -1,13 +1,14 @@
 package de.infynyty.wokoupdates.insertion;
 
+import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 import lombok.Getter;
 import lombok.extern.java.Log;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
 import org.jsoup.nodes.Element;
 
 /**
@@ -19,40 +20,53 @@ import org.jsoup.nodes.Element;
 @Log
 public abstract class Insertion {
 
+    private static final int RENT_UNDEFINED = -1;
+
     @NotNull
     protected final Element element;
-    private final int insertionNumber;
-    private final Date postDate;
+    @NotNull
+    protected final URL insertionURI;
+    @NotNull
     private final Date moveInDate;
-    private final boolean isNextTenantWanted;
+    @Range(from = RENT_UNDEFINED, to = Integer.MAX_VALUE)
     private final int rent;
+    private final boolean isNextTenantWanted;
+
+    @Nullable
+    private final Date postDate;
 
 
     /**
      * Constructs a new insertion object from a given html string.
      *
-     * @param element
-     * @param html    The given html file.
+     * @param element The given html file.
      *
      * @throws NumberFormatException If the insertion number cannot be read, an object cannot be constructed
      *                               successfully.
      */
-    public Insertion(final Element element) throws NumberFormatException {
+    public Insertion(@NotNull final Element element) throws IllegalStateException {
         this.element = element;
-        this.insertionNumber = setInsertionNumber();
-        this.postDate = setDate(element.html(), 0);
-        this.moveInDate = setDate(element.html(), 1);
+        this.insertionURI = setInsertionURL();
+        this.moveInDate = setMoveInDate();
+
         this.isNextTenantWanted = setIsNewTenantWanted(element.html());
         this.rent = setRent();
+
+        this.postDate = setPostDate();
     }
+
+    @NotNull
+    protected abstract URL setInsertionURL() throws IllegalStateException;
 
     /**
      * Parses the rent from a given html string.
      *
-     * @param html The given html.
      * @return The rent or {@value -1}, if it was not possible to parse the rent.
      */
-    protected abstract int setRent();
+    @Range(from = RENT_UNDEFINED, to = Integer.MAX_VALUE)
+    protected int setRent() {
+        return RENT_UNDEFINED;
+    }
 
     /**
      * Returns whether a new tenant or a subtenant is wanted.
@@ -60,41 +74,55 @@ public abstract class Insertion {
      * @param html The given html.
      * @return {@code True}, if a new tenant is wanted, otherwise {@code false}.
      */
-    protected abstract boolean setIsNewTenantWanted(final String html);
+    protected boolean setIsNewTenantWanted(final String html) {
+        return false;
+    }
 
     /**
      * Reads a date from the given html.
      *
-     * @param html  The given html.
-     * @param index The index of the date that should be returned from the html file.
      * @return A date.
      */
-    protected abstract Date setDate(final String html, final int index);
+    @NotNull
+    protected abstract Date setMoveInDate();
 
     /**
-     * Parses the insertion number of a given insertion.
+     * Returns the date that this insertion was posted online. Should be overridden by subclasses.
      *
-     * @param html The given html file.
-     * @return The insertion number.
-     * @throws NumberFormatException If the insertion number cannot be parsed from the given html, an exception is thrown.
+     * @return A date or {@code null}, if the date cannot be parsed for a certain website.
      */
-    protected abstract int setInsertionNumber() throws NumberFormatException;
-
-
+    @Nullable
+    protected Date setPostDate() {
+        return null;
+    }
 
     @Override
     public String toString() {
-        return "Insertion: \n" +
-            "Insertion number: " + insertionNumber + ", \n" +
-            "Next tenant wanted: " + isNextTenantWanted + ", \n" +
-            "Rent: CHF " + rent + ", \n" +
-            "Date of insertion posting: " + new SimpleDateFormat("dd.MM.yyyy").format(postDate) + ", \n" +
-            "Move-in date: " + new SimpleDateFormat("dd.MM.yyyy").format(moveInDate) + "\n";
+        final StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder
+            .append("Insertion: \n")
+            .append("Link: ").append(insertionURI).append("\n");
+
+        if (rent != RENT_UNDEFINED) {
+            stringBuilder.append("Rent: CHF ").append(rent).append(", \n");
+        } else {
+            stringBuilder.append("Rent could not be parsed.\n");
+        }
+
+        stringBuilder
+            .append("Next tenant wanted: ").append(isNextTenantWanted).append(", \n")
+            .append("Move-in date: ").append(new SimpleDateFormat("dd.MM.yyyy").format(moveInDate)).append("\n");
+
+        if (postDate != null) {
+            stringBuilder.append("Date of insertion posting: ").append(new SimpleDateFormat("dd.MM.yyyy").format(postDate)).append("\n");
+        }
+
+        return stringBuilder.toString();
     }
 
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Insertion)) return false;
-        return this.insertionNumber == ((Insertion) o).insertionNumber;
+        return this.insertionURI.equals(((Insertion) o).getInsertionURI());
     }
 }

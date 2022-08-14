@@ -1,9 +1,13 @@
 package de.infynyty.wokoupdates.insertion;
 
 import lombok.extern.java.Log;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,6 +22,9 @@ public class WOKOInsertion extends Insertion {
      */
     private static final String PRICE_SUFFIX = ".--";
 
+    private static final String PROTOCOL = "https://";
+    private static final String DOMAIN = "www.woko.ch";
+
     /**
      * Constructs a new insertion object from a given html string.
      *
@@ -25,8 +32,17 @@ public class WOKOInsertion extends Insertion {
      *
      * @throws NumberFormatException If the insertion number cannot be read, an object cannot be constructed successfully.
      */
-    public WOKOInsertion(final Element element) throws NumberFormatException {
+    public WOKOInsertion(final Element element) throws IllegalStateException {
         super(element);
+    }
+
+    @Override
+    protected @NotNull URL setInsertionURL() {
+        try {
+            return new URL(PROTOCOL + DOMAIN + element.getElementsByTag("a").get(0).attr("href"));
+        } catch (IndexOutOfBoundsException | MalformedURLException e) {
+            throw new IllegalStateException("URI to insertion could not be parsed.\n\n" + e.getMessage());
+        }
     }
 
     //TODO: Use html parser instead of regex
@@ -57,11 +73,12 @@ public class WOKOInsertion extends Insertion {
         return html.contains("Nachmieter gesucht");
     }
 
+
     @Override
-    protected Date setDate(final String html, final int index) {
+    protected @NotNull Date setMoveInDate() {
         final Pattern pattern = Pattern.compile("(3[01]|[12][0-9]|0?[1-9])\\.(1[012]|0?[1-9])\\.((?:19|20)\\d{2})");
-        final Matcher matcher = pattern.matcher(html);
-        final String stringDate = matcher.results().toList().get(index).group();
+        final Matcher matcher = pattern.matcher(element.html());
+        final String stringDate = matcher.results().toList().get(1).group();
         try {
             return new SimpleDateFormat("dd.MM.yyyy").parse(stringDate);
         } catch (ParseException e) {
@@ -73,21 +90,17 @@ public class WOKOInsertion extends Insertion {
     }
 
     @Override
-    protected int setInsertionNumber() throws NumberFormatException {
-        final Elements linkElements = super.element.getElementsByTag("a");
-        final String link = linkElements.attr("href");
-
-        final Pattern pattern = Pattern.compile("\\d+");
-        final Matcher matcher = pattern.matcher(link);
-        matcher.find();
-        final String number = matcher.group();
-
+    protected @Nullable Date setPostDate() {
+        final Pattern pattern = Pattern.compile("(3[01]|[12][0-9]|0?[1-9])\\.(1[012]|0?[1-9])\\.((?:19|20)\\d{2})");
+        final Matcher matcher = pattern.matcher(element.html());
+        final String stringDate = matcher.results().toList().get(0).group();
         try {
-            return Integer.parseInt(number);
-        } catch (NumberFormatException e) {
-            log.severe("Insertion number could not be parsed from html");
-            log.severe("Tried parsing: " + number);
-            throw new NumberFormatException();
+            return new SimpleDateFormat("dd.MM.yyyy").parse(stringDate);
+        } catch (ParseException e) {
+            log.severe("Date could not be parsed from html!");
+            log.severe("Tried parsing: " + stringDate);
+            e.printStackTrace();
+            return new Date(0);
         }
     }
 }
