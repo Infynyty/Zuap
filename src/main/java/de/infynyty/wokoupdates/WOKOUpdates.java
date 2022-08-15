@@ -42,8 +42,8 @@ public class WOKOUpdates {
     private static void parseWebsiteData(final JDA jda) throws InterruptedException {
 
 
-        final WOKOInsertionHandler wokoInsertionHandler = new WOKOInsertionHandler(jda, dotenv);
-        final WGZimmerHandler wgZimmerHandler = new WGZimmerHandler(jda, dotenv);
+        final WOKOInsertionHandler wokoInsertionHandler = new WOKOInsertionHandler(jda, dotenv, "WOKO: ");
+        final WGZimmerHandler wgZimmerHandler = new WGZimmerHandler(jda, dotenv, "WGZimmer: ");
 
         while (true) {
             wokoInsertionHandler.updateCurrentInsertions();

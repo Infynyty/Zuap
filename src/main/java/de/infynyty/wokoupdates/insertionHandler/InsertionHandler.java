@@ -5,6 +5,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -25,18 +26,24 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates
      */
     private final ArrayList<Insertion> updatedInsertions = new ArrayList<>();
 
+    @NotNull
     private final JDA jda;
+    @NotNull
     private final Dotenv dotenv;
+    @NotNull
+    private final String logPrefix;
 
     /**
      * Creates an insertion handler for a new website.
      *
-     * @param jda    A reference to the discord bot.
-     * @param dotenv The file containing environment variables.
+     * @param jda        A reference to the discord bot.
+     * @param dotenv     The file containing environment variables.
+     * @param logPrefix
      */
-    protected InsertionHandler(final JDA jda, final Dotenv dotenv) {
+    protected InsertionHandler(@NotNull final JDA jda, @NotNull final Dotenv dotenv, @NotNull final String logPrefix) {
         this.jda = jda;
         this.dotenv = dotenv;
+        this.logPrefix = logPrefix;
     }
 
     /**
@@ -94,12 +101,12 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates
      * @param logChannelId The discord channel that should be used to post this information.
      */
     private void logUpdates(final Level level, final String logText, final long logChannelId) {
-        log.log(level, logText);
+        log.log(level, logPrefix + logText);
         if (jda.getChannelById(TextChannel.class, logChannelId) == null) {
             log.log(Level.SEVERE, "Discord channel could not be found!");
             return;
         }
-        jda.getChannelById(TextChannel.class, logChannelId).sendMessage(logText).queue();
+        jda.getChannelById(TextChannel.class, logChannelId).sendMessage(logPrefix + logText).queue();
     }
 
     /**

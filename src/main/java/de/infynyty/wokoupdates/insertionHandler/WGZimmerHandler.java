@@ -1,8 +1,6 @@
 package de.infynyty.wokoupdates.insertionHandler;
 
-import de.infynyty.wokoupdates.insertion.Insertion;
 import de.infynyty.wokoupdates.insertion.WGZimmerInsertion;
-import de.infynyty.wokoupdates.insertion.WOKOInsertion;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
@@ -21,8 +19,8 @@ import java.util.zip.GZIPInputStream;
 
 @Log
 public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
-    public WGZimmerHandler(final JDA jda, final Dotenv dotenv) {
-        super(jda, dotenv);
+    public WGZimmerHandler(final JDA jda, final Dotenv dotenv, final String logPrefix) {
+        super(jda, dotenv, logPrefix);
     }
 
     //TODO: Make it possible to change search variables

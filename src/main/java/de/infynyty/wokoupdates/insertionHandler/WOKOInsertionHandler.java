@@ -20,9 +20,10 @@ public class WOKOInsertionHandler extends InsertionHandler<WOKOInsertion> {
 
     public WOKOInsertionHandler(
         final JDA jda,
-        final Dotenv dotenv
+        final Dotenv dotenv,
+        final String logPrefix
     ) {
-        super(jda, dotenv);
+        super(jda, dotenv, logPrefix);
     }
 
     @Override
