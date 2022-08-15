@@ -28,7 +28,7 @@ public class WOKOUpdates {
 
     public final static long MAIN_CHANNEL_ID = 1002178166112137249L;
     public final static long LOG_CHANNEL_ID = 1004378115751030885L;
-    public final static int UPDATE_DELAY_IN_MINS = 15;
+    public final static int UPDATE_DELAY_IN_MINS = 5;
 
     private final static Dotenv dotenv = Dotenv.load();
 
