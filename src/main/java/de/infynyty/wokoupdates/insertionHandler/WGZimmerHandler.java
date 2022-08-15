@@ -34,7 +34,8 @@ public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
             .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8")
             .header("Accept-Encoding", "gzip, deflate, br")
             .header("Content-Type", "application/x-www-form-urlencoded")
-            .POST(HttpRequest.BodyPublishers.ofString("query=&priceMin=200&priceMax=650&state=all&permanent=all&student=true&typeofwg=all&orderBy=%40sortDate&orderDir=descending&startSearchMate=true&wgStartSearch=true&start=0"))
+            .POST(HttpRequest.BodyPublishers.ofString("query=&priceMin=200&priceMax=650&state=zurich-stadt&permanent"
+                + "=all&student=true&typeofwg=all&orderBy=%40sortDate&orderDir=descending&startSearchMate=true&wgStartSearch=true&start=0"))
             .build();
 
         HttpResponse<byte[]> wgZimmerResponse = wgZimmerClient.send(wgZimmerRequest,
