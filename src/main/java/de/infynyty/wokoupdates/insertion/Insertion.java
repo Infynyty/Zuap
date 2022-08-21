@@ -42,11 +42,12 @@ public abstract class Insertion {
 
 
     /**
-     * Constructs a new insertion object from a given html string.
+     * Constructs a new insertion object from a given html string. This constructor should be used when there is no
+     * possibility of obtaining a JSON file containing all needed data.
      *
      * @param element The given html file.
      *
-     * @throws NumberFormatException If the insertion number cannot be read, an object cannot be constructed
+     * @throws IllegalStateException If the insertion URL cannot be read, an object cannot be constructed
      *                               successfully.
      */
     public Insertion(@NotNull final Element element) throws IllegalStateException {
@@ -60,6 +61,15 @@ public abstract class Insertion {
         this.postDate = setPostDate();
     }
 
+    /**
+     * Constructs a new insertion object from a given html string. This constructor should be used when it is
+     * possible to get the needed data from a JSON file.
+     *
+     * @param jsonObject The given JSON data.
+     *
+     * @throws NumberFormatException If the insertion URL cannot be read, an object cannot be constructed
+     *                               successfully.
+     */
     public Insertion(@NotNull final JSONObject jsonObject) throws IllegalStateException {
         this.jsonObject = jsonObject;
         this.insertionURI = setInsertionURL();
