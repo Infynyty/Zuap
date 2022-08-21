@@ -39,7 +39,7 @@ public class WOKOInsertion extends Insertion {
     @Override
     protected @NotNull URL setInsertionURL() {
         try {
-            return new URL(PROTOCOL + DOMAIN + element.getElementsByTag("a").get(0).attr("href"));
+            return new URL(PROTOCOL + DOMAIN + super.getElement().getElementsByTag("a").get(0).attr("href"));
         } catch (IndexOutOfBoundsException | MalformedURLException e) {
             throw new IllegalStateException("URI to insertion could not be parsed.\n\n" + e.getMessage());
         }
@@ -49,14 +49,14 @@ public class WOKOInsertion extends Insertion {
 
     @Override
     protected int setRent() {
-        final Elements priceElements = super.element.getElementsByClass("preis");
+        final Elements priceElements = super.getElement().getElementsByClass("preis");
         String price = priceElements.html();
         try {
             price = price.substring(0, price.length() - PRICE_SUFFIX.length());
         } catch (IndexOutOfBoundsException e) {
             log.severe("Rent could not be parsed because of an incorrectly formatted string");
             log.severe("Rent string: \n\n" + price + "\n\n");
-            log.severe("HTML: \n\n" + super.element);
+            log.severe("HTML: \n\n" + super.getElement());
             return -1;
         }
         try {
@@ -69,15 +69,15 @@ public class WOKOInsertion extends Insertion {
     }
 
     @Override
-    protected boolean setIsNewTenantWanted(final String html) {
-        return html.contains("Nachmieter gesucht");
+    protected boolean setIsNewTenantWanted() {
+        return super.getElement().html().contains("Nachmieter gesucht");
     }
 
 
     @Override
     protected @NotNull Date setMoveInDate() {
         final Pattern pattern = Pattern.compile("(3[01]|[12][0-9]|0?[1-9])\\.(1[012]|0?[1-9])\\.((?:19|20)\\d{2})");
-        final Matcher matcher = pattern.matcher(element.html());
+        final Matcher matcher = pattern.matcher(super.getElement().html());
         final String stringDate = matcher.results().toList().get(1).group();
         try {
             return new SimpleDateFormat("dd.MM.yyyy").parse(stringDate);
@@ -92,7 +92,7 @@ public class WOKOInsertion extends Insertion {
     @Override
     protected @Nullable Date setPostDate() {
         final Pattern pattern = Pattern.compile("(3[01]|[12][0-9]|0?[1-9])\\.(1[012]|0?[1-9])\\.((?:19|20)\\d{2})");
-        final Matcher matcher = pattern.matcher(element.html());
+        final Matcher matcher = pattern.matcher(super.getElement().html());
         final String stringDate = matcher.results().toList().get(0).group();
         try {
             return new SimpleDateFormat("dd.MM.yyyy").parse(stringDate);

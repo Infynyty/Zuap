@@ -54,19 +54,19 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates
      * @throws IOException
      * @throws InterruptedException
      */
-    protected abstract String pullUpdatedHTML() throws IOException, InterruptedException;
+    protected abstract String pullUpdatedData() throws IOException, InterruptedException;
 
     /**
-     * Parses the entire html file, so that all insertions are read into {@link Insertion} objects.
+     * Parses the entire data file, so that all insertions are read into {@link Insertion} objects.
      *
-     * @param html The html containing all insertions.
+     * @param data The data containing all insertions.
      *
      * @return A list containing all parsed insertions.
      *
      * @throws IllegalStateException If the link to a given insertion cannot be parsed an exception is thrown because
      *                               the links are considered critical information for an {@link Insertion} object.
      */
-    protected abstract ArrayList<Insertion> getInsertionsFromHTML(final String html) throws IllegalStateException;
+    protected abstract ArrayList<Insertion> getInsertionsFromData(final String data) throws IllegalStateException;
 
     /**
      * Updates the currently saved insertions. Online changes to insertions will be mirrored locally in
@@ -168,7 +168,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates
      */
     private void parseUpdatedInsertions() throws InterruptedException {
         try {
-            updatedInsertions.addAll(getInsertionsFromHTML(pullUpdatedHTML()));
+            updatedInsertions.addAll(getInsertionsFromData(pullUpdatedData()));
         } catch (IOException | InterruptedException | IllegalStateException e) {
             logUpdates(
                 Level.SEVERE,

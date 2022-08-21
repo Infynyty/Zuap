@@ -27,7 +27,7 @@ public class WOKOInsertionHandler extends InsertionHandler<WOKOInsertion> {
     }
 
     @Override
-    protected String pullUpdatedHTML() throws InterruptedException, IOException {
+    protected String pullUpdatedData() throws InterruptedException, IOException {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create("https://www.woko.ch/de/zimmer-in-zuerich"))
@@ -40,15 +40,15 @@ public class WOKOInsertionHandler extends InsertionHandler<WOKOInsertion> {
     }
 
     @Override
-    protected ArrayList<WOKOInsertion> getInsertionsFromHTML(final String html) {
-        final Document document = Jsoup.parse(html);
+    protected ArrayList<WOKOInsertion> getInsertionsFromData(final String data) {
+        final Document document = Jsoup.parse(data);
         final Elements elements = document.getElementsByClass("inserat");
         final ArrayList<WOKOInsertion> insertions = new ArrayList<>();
         elements.forEach(element -> {
             try {
                 insertions.add(new WOKOInsertion(element));
-            } catch (NumberFormatException e) {
-            log.warning("Insertion could not be included because of a missing insertion number!");
+            } catch (IllegalStateException e) {
+            log.warning("Insertion could not be included because of a missing insertion URL!");
             }
         });
         return insertions;

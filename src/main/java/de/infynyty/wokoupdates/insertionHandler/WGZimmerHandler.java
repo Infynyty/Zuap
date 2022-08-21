@@ -25,7 +25,7 @@ public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
 
     //TODO: Make it possible to change search variables
     @Override
-    protected String pullUpdatedHTML() throws IOException, InterruptedException {
+    protected String pullUpdatedData() throws IOException, InterruptedException {
         final HttpClient wgZimmerClient = HttpClient.newHttpClient();
         HttpRequest wgZimmerRequest = HttpRequest.newBuilder()
             .uri(URI.create("https://www.wgzimmer.ch/wgzimmer/search/mate.html?"))
@@ -45,8 +45,8 @@ public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
     }
 
     @Override
-    protected ArrayList<WGZimmerInsertion> getInsertionsFromHTML(final String html) {
-        final Document document = Jsoup.parse(html);
+    protected ArrayList<WGZimmerInsertion> getInsertionsFromData(final String data) {
+        final Document document = Jsoup.parse(data);
         final Elements elements = document.getElementsByClass("search-result-entry search-mate-entry");
         final ArrayList<WGZimmerInsertion> insertions = new ArrayList<>();
         elements.forEach(element -> {

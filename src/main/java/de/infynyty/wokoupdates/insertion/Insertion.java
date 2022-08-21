@@ -9,6 +9,7 @@ import lombok.extern.java.Log;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+import org.json.JSONObject;
 import org.jsoup.nodes.Element;
 
 /**
@@ -20,10 +21,14 @@ import org.jsoup.nodes.Element;
 @Log
 public abstract class Insertion {
 
-    private static final int RENT_UNDEFINED = -1;
+    protected static final int RENT_UNDEFINED = -1;
 
-    @NotNull
-    protected final Element element;
+    @Nullable
+    private Element element;
+
+    @Nullable
+    private JSONObject jsonObject;
+
     @NotNull
     protected final URL insertionURI;
     @NotNull
@@ -49,7 +54,18 @@ public abstract class Insertion {
         this.insertionURI = setInsertionURL();
         this.moveInDate = setMoveInDate();
 
-        this.isNextTenantWanted = setIsNewTenantWanted(element.html());
+        this.isNextTenantWanted = setIsNewTenantWanted();
+        this.rent = setRent();
+
+        this.postDate = setPostDate();
+    }
+
+    public Insertion(@NotNull final JSONObject jsonObject) throws IllegalStateException {
+        this.jsonObject = jsonObject;
+        this.insertionURI = setInsertionURL();
+        this.moveInDate = setMoveInDate();
+
+        this.isNextTenantWanted = setIsNewTenantWanted();
         this.rent = setRent();
 
         this.postDate = setPostDate();
@@ -71,10 +87,9 @@ public abstract class Insertion {
     /**
      * Returns whether a new tenant or a subtenant is wanted.
      *
-     * @param html The given html.
      * @return {@code True}, if a new tenant is wanted, otherwise {@code false}.
      */
-    protected boolean setIsNewTenantWanted(final String html) {
+    protected boolean setIsNewTenantWanted() {
         return false;
     }
 

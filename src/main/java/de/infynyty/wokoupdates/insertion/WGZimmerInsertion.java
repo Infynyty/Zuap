@@ -18,21 +18,15 @@ public class WGZimmerInsertion extends Insertion {
     private static final String PROTOCOL = "https://";
     private static final String DOMAIN = "www.wgzimmer.ch";
 
-    /**
-     * Constructs a new insertion object from a given html string.
-     *
-     * @param element The given html file.
-     *
-     * @throws NumberFormatException If the insertion number cannot be read, an object cannot be constructed successfully.
-     */
-    public WGZimmerInsertion(@NotNull final Element element) throws IllegalStateException {
+    public WGZimmerInsertion(final @NotNull Element element) throws IllegalStateException {
         super(element);
     }
+
 
     @Override
     protected @NotNull URL setInsertionURL() throws IllegalStateException {
         try {
-            return new URL(PROTOCOL + DOMAIN + element.getElementsByTag("a").get(1).attr("href"));
+            return new URL(PROTOCOL + DOMAIN + super.getElement().getElementsByTag("a").get(1).attr("href"));
         } catch (IndexOutOfBoundsException | MalformedURLException e) {
             throw new IllegalStateException("URI to insertion could not be parsed.\n\n" + e.getMessage());
         }
@@ -40,14 +34,14 @@ public class WGZimmerInsertion extends Insertion {
 
     @Override
     protected int setRent() {
-        final Elements priceElements = super.element.getElementsByClass("cost");
+        final Elements priceElements = super.getElement().getElementsByClass("cost");
         String price = priceElements.text();
         try {
             price = price.substring(PRICE_PREFIX.length());
         } catch (IndexOutOfBoundsException e) {
             log.severe("Rent could not be parsed because of an incorrectly formatted string");
             log.severe("Rent string: \n\n" + price + "\n\n");
-            log.severe("HTML: \n\n" + super.element);
+            log.severe("HTML: \n\n" + super.getElement());
             return -1;
         }
         try {
@@ -60,13 +54,13 @@ public class WGZimmerInsertion extends Insertion {
     }
 
     @Override
-    protected boolean setIsNewTenantWanted(final String html) {
-        return element.html().contains("Bis: Unbefristet");
+    protected boolean setIsNewTenantWanted() {
+        return super.getElement().html().contains("Bis: Unbefristet");
     }
 
     @Override
     protected @NotNull Date setMoveInDate() {
-        final String moveInDate = element
+        final String moveInDate = super.getElement()
             .getElementsByClass("from-date")
             .get(0)
             .getElementsByTag("strong")

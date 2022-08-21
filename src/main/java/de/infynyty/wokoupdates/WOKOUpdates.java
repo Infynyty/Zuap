@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
 import de.infynyty.wokoupdates.insertion.Insertion;
+import de.infynyty.wokoupdates.insertionHandler.MeinWGZimmerHandler;
 import de.infynyty.wokoupdates.insertionHandler.WGZimmerHandler;
 import de.infynyty.wokoupdates.insertionHandler.WOKOInsertionHandler;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -32,22 +33,25 @@ public class WOKOUpdates {
 
     private final static Dotenv dotenv = Dotenv.load();
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException {
         final JDA jda = prepareDiscordBot();
         if (jda == null) return;
 
         parseWebsiteData(jda);
     }
 
-    private static void parseWebsiteData(final JDA jda) throws InterruptedException {
+    private static void parseWebsiteData(final JDA jda) throws InterruptedException, IOException {
+
 
 
         final WOKOInsertionHandler wokoInsertionHandler = new WOKOInsertionHandler(jda, dotenv, "WOKO: ");
         final WGZimmerHandler wgZimmerHandler = new WGZimmerHandler(jda, dotenv, "WGZimmer: ");
+        final MeinWGZimmerHandler meinWGZimmerHandler = new MeinWGZimmerHandler(jda, dotenv, "MeinWGZimmer: ");
 
         while (true) {
             wokoInsertionHandler.updateCurrentInsertions();
             wgZimmerHandler.updateCurrentInsertions();
+            meinWGZimmerHandler.updateCurrentInsertions();
             TimeUnit.MINUTES.sleep(UPDATE_DELAY_IN_MINS);
         }
     }
