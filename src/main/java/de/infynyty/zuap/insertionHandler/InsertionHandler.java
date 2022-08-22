@@ -1,6 +1,6 @@
 package de.infynyty.zuap.insertionHandler;
 
-import de.infynyty.zuap.WOKOUpdates;
+import de.infynyty.zuap.Zuap;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
@@ -89,7 +89,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
         logUpdates(
             Level.INFO,
             "Insertions updated at " + Date.from(Instant.now()) + ", numbers of insertions: " + updatedInsertions.size(),
-            WOKOUpdates.LOG_CHANNEL_ID
+            Zuap.LOG_CHANNEL_ID
         );
     }
 
@@ -119,7 +119,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
             currentInsertion -> (!(updatedInsertions.contains(currentInsertion)))
         );
         if (wasRemoved) {
-            logUpdates(Level.INFO, "One or more insertions were removed.", WOKOUpdates.LOG_CHANNEL_ID);
+            logUpdates(Level.INFO, "One or more insertions were removed.", Zuap.LOG_CHANNEL_ID);
         }
     }
 
@@ -133,7 +133,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
                 logUpdates(
                     Level.INFO,
                     "New insertion found:\n\n" + updatedInsertion.toString(),
-                    WOKOUpdates.MAIN_CHANNEL_ID
+                    Zuap.MAIN_CHANNEL_ID
                 );
             }
         }
@@ -149,14 +149,14 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
         logUpdates(
             Level.INFO,
             "Initial download of all insertions completed successfully!",
-            WOKOUpdates.LOG_CHANNEL_ID
+            Zuap.LOG_CHANNEL_ID
         );
         currentInsertions.forEach(insertion -> System.out.println(insertion.toString()));
     }
 
     /**
      * Tries to read all insertions from the updated html file. On failure retries happen automatically after
-     * {@link WOKOUpdates#UPDATE_DELAY_IN_MINS}.
+     * {@link Zuap#UPDATE_DELAY_IN_MINS}.
      *
      * @throws InterruptedException
      */
@@ -169,9 +169,9 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
                 "An exception occurred while trying to update the insertions." +
                     e.getMessage() +
                     "Retrying in 15 minutes.",
-                WOKOUpdates.LOG_CHANNEL_ID
+                Zuap.LOG_CHANNEL_ID
             );
-            TimeUnit.MINUTES.sleep(WOKOUpdates.UPDATE_DELAY_IN_MINS);
+            TimeUnit.MINUTES.sleep(Zuap.UPDATE_DELAY_IN_MINS);
             parseUpdatedInsertions();
         }
     }

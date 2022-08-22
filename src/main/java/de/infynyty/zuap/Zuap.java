@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import org.jetbrains.annotations.Nullable;
 
 @Log
-public class WOKOUpdates {
+public class Zuap {
 
     public final static long MAIN_CHANNEL_ID = 1002178166112137249L;
     public final static long LOG_CHANNEL_ID = 1004378115751030885L;
