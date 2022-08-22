@@ -1,6 +1,6 @@
-package de.infynyty.wokoupdates.insertionHandler;
+package de.infynyty.zuap.insertionHandler;
 
-import de.infynyty.wokoupdates.insertion.WGZimmerInsertion;
+import de.infynyty.zuap.insertion.WGZimmerInsertion;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;

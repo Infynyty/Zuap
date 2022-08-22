@@ -1,23 +1,13 @@
-package de.infynyty.wokoupdates;
+package de.infynyty.zuap;
 
 import javax.security.auth.login.LoginException;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.GZIPInputStream;
 
-import de.infynyty.wokoupdates.insertion.Insertion;
-import de.infynyty.wokoupdates.insertionHandler.MeinWGZimmerHandler;
-import de.infynyty.wokoupdates.insertionHandler.WGZimmerHandler;
-import de.infynyty.wokoupdates.insertionHandler.WOKOInsertionHandler;
+import de.infynyty.zuap.insertionHandler.MeinWGZimmerHandler;
+import de.infynyty.zuap.insertionHandler.WGZimmerHandler;
+import de.infynyty.zuap.insertionHandler.WOKOInsertionHandler;
 import io.github.cdimascio.dotenv.Dotenv;
-import lombok.Getter;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -33,16 +23,14 @@ public class WOKOUpdates {
 
     private final static Dotenv dotenv = Dotenv.load();
 
-    public static void main(String[] args) throws InterruptedException, IOException {
+    public static void main(String[] args) throws InterruptedException {
         final JDA jda = prepareDiscordBot();
         if (jda == null) return;
 
         parseWebsiteData(jda);
     }
 
-    private static void parseWebsiteData(final JDA jda) throws InterruptedException, IOException {
-
-
+    private static void parseWebsiteData(final JDA jda) throws InterruptedException {
 
         final WOKOInsertionHandler wokoInsertionHandler = new WOKOInsertionHandler(jda, dotenv, "WOKO: ");
         final WGZimmerHandler wgZimmerHandler = new WGZimmerHandler(jda, dotenv, "WGZimmer: ");

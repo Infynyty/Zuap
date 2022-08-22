@@ -49,6 +49,7 @@
     </properties>
 
     <build>
+        <finalName>Zuap</finalName>
         <resources>
             <resource>
                 <directory>./</directory>
@@ -71,7 +72,7 @@
                             <archive>
                                 <manifest>
                                     <mainClass>
-                                        de.infynyty.wokoupdates.WOKOUpdates
+                                        de.infynyty.zuap.WOKOUpdates
                                     </mainClass>
                                 </manifest>
                             </archive>

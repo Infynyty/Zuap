@@ -1,6 +1,6 @@
-package de.infynyty.wokoupdates.insertionHandler;
+package de.infynyty.zuap.insertionHandler;
 
-import de.infynyty.wokoupdates.WOKOUpdates;
+import de.infynyty.zuap.WOKOUpdates;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 @Log
-public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates.insertion.Insertion> {
+public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insertion.Insertion> {
 
     /**
      * Contains all locally saved insertions.
@@ -135,12 +135,6 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.wokoupdates
                     "New insertion found:\n\n" + updatedInsertion.toString(),
                     WOKOUpdates.MAIN_CHANNEL_ID
                 );
-                if (updatedInsertion.isNextTenantWanted() && updatedInsertion.getRent() < 650) {
-                    jda.getChannelById(
-                        TextChannel.class,
-                        WOKOUpdates.MAIN_CHANNEL_ID
-                    ).sendMessage(dotenv.get("PING")).queue();
-                }
             }
         }
     }

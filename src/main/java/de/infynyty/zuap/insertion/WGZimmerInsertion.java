@@ -1,4 +1,4 @@
-package de.infynyty.wokoupdates.insertion;
+package de.infynyty.zuap.insertion;
 
 import lombok.extern.java.Log;
 import org.jetbrains.annotations.NotNull;

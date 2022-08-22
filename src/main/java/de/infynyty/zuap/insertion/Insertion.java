@@ -1,4 +1,4 @@
-package de.infynyty.wokoupdates.insertion;
+package de.infynyty.zuap.insertion;
 
 import java.net.URL;
 import java.text.SimpleDateFormat;

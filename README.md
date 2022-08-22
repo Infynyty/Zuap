@@ -1,37 +1,14 @@
-Example
+## Zuap
 
-```html
-<div class="inserat">
-								<a href="/de/zimmer-in-zuerich-details/8133">
-									<div class="row">
-										<div class="col-xs-12 col-sm-8">
-											<div class="titel">
-												<h3>SUBLET FOR THE WHOLE SEMESTER (SEPTEMBER - JANUARY)</h3>
-												<span>16.07.2022 16:27</span>
-											</div>
-											<table>
-												<tr>
-													<td>
-														Untermieter gesucht
-													</td>
-													<td>ab 03.09.2022 bis 17.01.2023													</td>
-												</tr>
-												<tr>
-													<td>Adresse</td>
-													<td>Bucheggstrasse 4-12, 8037 Zürich</td>
-												</tr>
-											</table>
-										</div>
-										<div class="col-xs-12 col-sm-4">
-											<div class="miete">
-												<div class="bezeichnung">
-													<h3>Miete</h3>
-													<span>CHF / Monat</span>
-												</div>
-												<div class="preis">555.--</div>
-											</div>
-										</div>
-									</div>
-								</a>
-							</div>
-```
+Zuap is a web scraper used to make the apartment hunt around Zurich a bit easier 
+(although it can really be used to search for apartments anywhere). Zuap combines web scraping with the discord API to quickly inform
+you about any new insertions posted on any of the included websites.
+
+## Installation
+
+To install this app you need maven. Clone the repository onto your local machine using git. You then need to create a `.env` file 
+which should contain your _secret_ discord API token (do not publish). The format should look exactly like this:
+
+    TOKEN=YOURTOKENHEREWITHOUTQUOTES
+
+You can then compile the project using `mvn clean install`

@@ -1,7 +1,6 @@
-package de.infynyty.wokoupdates.insertionHandler;
+package de.infynyty.zuap.insertionHandler;
 
-import de.infynyty.wokoupdates.insertion.MeinWGZimmerInsertion;
-import de.infynyty.wokoupdates.insertion.WOKOInsertion;
+import de.infynyty.zuap.insertion.MeinWGZimmerInsertion;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
@@ -9,14 +8,12 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
-import java.util.zip.GZIPInputStream;
 
 @Log
 public class MeinWGZimmerHandler extends InsertionHandler<MeinWGZimmerInsertion> {

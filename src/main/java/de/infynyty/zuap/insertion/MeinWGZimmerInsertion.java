@@ -1,11 +1,10 @@
-package de.infynyty.wokoupdates.insertion;
+package de.infynyty.zuap.insertion;
 
 import lombok.extern.java.Log;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.json.JSONObject;
-import org.jsoup.nodes.Element;
 
 import java.net.MalformedURLException;
 import java.net.URL;
