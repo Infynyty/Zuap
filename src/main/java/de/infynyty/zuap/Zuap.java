@@ -2,8 +2,11 @@ package de.infynyty.zuap;
 
 import javax.security.auth.login.LoginException;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import de.infynyty.zuap.insertion.Insertion;
+import de.infynyty.zuap.insertionHandler.InsertionHandler;
 import de.infynyty.zuap.insertionHandler.MeinWGZimmerHandler;
 import de.infynyty.zuap.insertionHandler.WGZimmerHandler;
 import de.infynyty.zuap.insertionHandler.WOKOInsertionHandler;
@@ -23,6 +26,8 @@ public class Zuap {
 
     private final static Dotenv dotenv = Dotenv.load();
 
+    private final static ArrayList<InsertionHandler<? extends Insertion>> handlers = new ArrayList<>();
+
     public static void main(String[] args) throws InterruptedException {
         final JDA jda = prepareDiscordBot();
         if (jda == null) return;
@@ -32,14 +37,18 @@ public class Zuap {
 
     private static void parseWebsiteData(final JDA jda) throws InterruptedException {
 
-        final WOKOInsertionHandler wokoInsertionHandler = new WOKOInsertionHandler(jda, dotenv, "WOKO: ");
-        final WGZimmerHandler wgZimmerHandler = new WGZimmerHandler(jda, dotenv, "WGZimmer: ");
-        final MeinWGZimmerHandler meinWGZimmerHandler = new MeinWGZimmerHandler(jda, dotenv, "MeinWGZimmer: ");
+        handlers.add(new WOKOInsertionHandler(jda, dotenv, "WOKO: "));
+        handlers.add(new WGZimmerHandler(jda, dotenv, "WGZimmer: "));
+        handlers.add(new MeinWGZimmerHandler(jda, dotenv, "MeinWGZimmer: "));
 
         while (true) {
-            wokoInsertionHandler.updateCurrentInsertions();
-            wgZimmerHandler.updateCurrentInsertions();
-            meinWGZimmerHandler.updateCurrentInsertions();
+            handlers.forEach(handler -> {
+                try {
+                    handler.updateCurrentInsertions();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
             TimeUnit.MINUTES.sleep(UPDATE_DELAY_IN_MINS);
         }
     }

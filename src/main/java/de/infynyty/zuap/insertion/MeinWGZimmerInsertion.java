@@ -47,7 +47,6 @@ public class MeinWGZimmerInsertion extends Insertion {
 
     @Override
     protected boolean setIsNewTenantWanted() {
-        System.out.println("JSON: " + super.getJsonObject());
         return !(super.getJsonObject().has("ValidUntil")) || super.getJsonObject().isNull("ValidUntil");
     }
 
