@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 @Log
 public class Zuap {
 
+    //TODO: Remove hardcoded Discord implementation
     public final static long MAIN_CHANNEL_ID = 1002178166112137249L;
     public final static long LOG_CHANNEL_ID = 1004378115751030885L;
     public final static int UPDATE_DELAY_IN_MINS = 5;
@@ -35,22 +36,22 @@ public class Zuap {
         parseWebsiteData(jda);
     }
 
-    private static void parseWebsiteData(final JDA jda) throws InterruptedException {
-
+    private static void parseWebsiteData(final JDA jda) {
         handlers.add(new WOKOInsertionHandler(jda, dotenv, "WOKO: "));
         handlers.add(new WGZimmerHandler(jda, dotenv, "WGZimmer: "));
         handlers.add(new MeinWGZimmerHandler(jda, dotenv, "MeinWGZimmer: "));
 
-        while (true) {
-            handlers.forEach(handler -> {
+        handlers.forEach(handler -> new Thread(() -> {
+            log.info("Started new thread for " + handler.getClass());
+            while (true) {
                 try {
                     handler.updateCurrentInsertions();
+                    TimeUnit.SECONDS.sleep(UPDATE_DELAY_IN_MINS);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-            });
-            TimeUnit.MINUTES.sleep(UPDATE_DELAY_IN_MINS);
-        }
+            }
+        }).start());
     }
 
     @Nullable
