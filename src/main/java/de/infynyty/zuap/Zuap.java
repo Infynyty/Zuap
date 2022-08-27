@@ -15,6 +15,7 @@ import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Log
@@ -29,10 +30,8 @@ public class Zuap {
 
     private final static ArrayList<InsertionHandler<? extends Insertion>> handlers = new ArrayList<>();
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, LoginException {
         final JDA jda = prepareDiscordBot();
-        if (jda == null) return;
-
         parseWebsiteData(jda);
     }
 
@@ -54,14 +53,14 @@ public class Zuap {
         }).start());
     }
 
-    @Nullable
-    private static JDA prepareDiscordBot() throws InterruptedException {
+    @NotNull
+    private static JDA prepareDiscordBot() throws InterruptedException, LoginException {
         final JDA jda;
         try {
             jda = JDABuilder.createDefault(dotenv.get("TOKEN")).build();
         } catch (LoginException e) {
             log.severe("JDA login failed");
-            return null;
+            throw new LoginException("JDA login failed");
         }
         jda.awaitReady();
         log.info("JDA bot ready");
