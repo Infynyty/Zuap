@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 @Log
-public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insertion.Insertion> implements Runnable {
+public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insertion.Insertion> {
 
     /**
      * Contains all locally saved insertions.
@@ -44,20 +44,6 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
         this.jda = jda;
         this.dotenv = dotenv;
         this.logPrefix = logPrefix;
-    }
-
-    /**
-     * Should be used to pull new insertions concurrently (see {@link InsertionHandler#updatedInsertions} for more
-     * details.
-     */
-    @Override
-    public void run() {
-        try {
-            System.out.println("Running thread for: " + logPrefix);
-            updateCurrentInsertions();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /**
