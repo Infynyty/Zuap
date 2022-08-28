@@ -45,7 +45,7 @@ public class Zuap {
             while (true) {
                 try {
                     handler.updateCurrentInsertions();
-                    TimeUnit.SECONDS.sleep(UPDATE_DELAY_IN_MINS);
+                    TimeUnit.MINUTES.sleep(UPDATE_DELAY_IN_MINS);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
