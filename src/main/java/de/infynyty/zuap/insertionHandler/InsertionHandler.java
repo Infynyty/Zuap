@@ -89,7 +89,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
         logUpdates(
             Level.INFO,
             "Insertions updated at " + Date.from(Instant.now()) + ", numbers of insertions: " + updatedInsertions.size(),
-            Zuap.LOG_CHANNEL_ID
+            Zuap.getLogChannelId()
         );
     }
 
@@ -119,7 +119,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
             currentInsertion -> (!(updatedInsertions.contains(currentInsertion)))
         );
         if (wasRemoved) {
-            logUpdates(Level.INFO, "One or more insertions were removed.", Zuap.LOG_CHANNEL_ID);
+            logUpdates(Level.INFO, "One or more insertions were removed.", Zuap.getLogChannelId());
         }
     }
 
@@ -133,7 +133,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
                 logUpdates(
                     Level.INFO,
                     "New insertion found:\n\n" + updatedInsertion.toString(),
-                    Zuap.MAIN_CHANNEL_ID
+                    Zuap.getMainChannelId()
                 );
             }
         }
@@ -149,7 +149,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
         logUpdates(
             Level.INFO,
             "Initial download of all insertions completed successfully!",
-            Zuap.LOG_CHANNEL_ID
+            Zuap.getLogChannelId()
         );
         currentInsertions.forEach(insertion -> System.out.println(insertion.toString()));
     }
@@ -169,7 +169,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
                 "An exception occurred while trying to update the insertions." +
                     e.getMessage() +
                     "Retrying in 15 minutes.",
-                Zuap.LOG_CHANNEL_ID
+                Zuap.getLogChannelId()
             );
             TimeUnit.MINUTES.sleep(Zuap.UPDATE_DELAY_IN_MINS);
             parseUpdatedInsertions();

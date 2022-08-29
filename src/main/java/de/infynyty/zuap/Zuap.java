@@ -16,14 +16,10 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 @Log
 public class Zuap {
 
-    //TODO: Remove hardcoded Discord implementation
-    public final static long MAIN_CHANNEL_ID = 1002178166112137249L;
-    public final static long LOG_CHANNEL_ID = 1004378115751030885L;
     public final static int UPDATE_DELAY_IN_MINS = 5;
 
     private final static Dotenv dotenv = Dotenv.load();
@@ -64,9 +60,17 @@ public class Zuap {
         }
         jda.awaitReady();
         log.info("JDA bot ready");
-        jda.getChannelById(TextChannel.class, LOG_CHANNEL_ID).sendMessage(
+        jda.getChannelById(TextChannel.class, getLogChannelId()).sendMessage(
             "Bot online."
         ).queue();
         return jda;
+    }
+
+    public static long getLogChannelId() {
+        return Long.parseLong(dotenv.get("LOG_CHANNEL_ID"));
+    }
+
+    public static long getMainChannelId() {
+        return Long.parseLong(dotenv.get("MAIN_CHANNEL_ID"));
     }
 }
