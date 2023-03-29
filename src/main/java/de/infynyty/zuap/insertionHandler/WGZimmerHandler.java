@@ -8,14 +8,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
-import java.util.zip.GZIPInputStream;
 
 @Log
 public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
@@ -36,12 +34,11 @@ public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
                 + "=all&student=true&typeofwg=all&orderBy=%40sortDate&orderDir=descending&startSearchMate=true&wgStartSearch=true&start=0"))
             .build();
 
-        HttpResponse<byte[]> wgZimmerResponse = wgZimmerClient.send(wgZimmerRequest,
-            HttpResponse.BodyHandlers.ofByteArray());
+        HttpResponse<String> wgZimmerResponse = wgZimmerClient.send(wgZimmerRequest,
+            HttpResponse.BodyHandlers.ofString());
 
 
-        GZIPInputStream gzipInputStream = new GZIPInputStream(new ByteArrayInputStream(wgZimmerResponse.body()));
-        return new String(gzipInputStream.readAllBytes());
+        return wgZimmerResponse.body();
     }
 
     @Override
