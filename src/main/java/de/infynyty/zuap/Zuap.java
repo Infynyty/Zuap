@@ -1,10 +1,5 @@
 package de.infynyty.zuap;
 
-import javax.security.auth.login.LoginException;
-
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
-
 import de.infynyty.zuap.insertion.Insertion;
 import de.infynyty.zuap.insertionHandler.InsertionHandler;
 import de.infynyty.zuap.insertionHandler.MeinWGZimmerHandler;
@@ -16,6 +11,10 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.jetbrains.annotations.NotNull;
+
+import javax.security.auth.login.LoginException;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 @Log
 public class Zuap {
@@ -32,9 +31,9 @@ public class Zuap {
     }
 
     private static void parseWebsiteData(final JDA jda) {
-        handlers.add(new WOKOInsertionHandler(jda, dotenv, "WOKO: "));
-        handlers.add(new WGZimmerHandler(jda, dotenv, "WGZimmer: "));
-        handlers.add(new MeinWGZimmerHandler(jda, dotenv, "MeinWGZimmer: "));
+        handlers.add(new WOKOInsertionHandler(jda,"WOKO: "));
+        handlers.add(new WGZimmerHandler(jda, "WGZimmer: "));
+        handlers.add(new MeinWGZimmerHandler(jda, "MeinWGZimmer: "));
 
         handlers.forEach(handler -> new Thread(() -> {
             log.info("Started new thread for " + handler.getClass());

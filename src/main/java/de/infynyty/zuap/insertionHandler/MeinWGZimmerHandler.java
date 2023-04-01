@@ -1,7 +1,6 @@
 package de.infynyty.zuap.insertionHandler;
 
 import de.infynyty.zuap.insertion.MeinWGZimmerInsertion;
-import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.NotNull;
@@ -21,15 +20,13 @@ public class MeinWGZimmerHandler extends InsertionHandler<MeinWGZimmerInsertion>
      * Creates an insertion handler for a new website.
      *
      * @param jda       A reference to the discord bot.
-     * @param dotenv    The file containing environment variables.
      * @param logPrefix
      */
     public MeinWGZimmerHandler(
         final @NotNull JDA jda,
-        final @NotNull Dotenv dotenv,
         final @NotNull String logPrefix
     ) {
-        super(jda, dotenv, logPrefix);
+        super(jda, logPrefix);
     }
 
     @Override

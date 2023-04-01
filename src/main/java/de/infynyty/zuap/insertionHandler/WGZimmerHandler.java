@@ -1,7 +1,6 @@
 package de.infynyty.zuap.insertionHandler;
 
 import de.infynyty.zuap.insertion.WGZimmerInsertion;
-import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
 import org.jsoup.Jsoup;
@@ -17,8 +16,8 @@ import java.util.ArrayList;
 
 @Log
 public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
-    public WGZimmerHandler(final JDA jda, final Dotenv dotenv, final String logPrefix) {
-        super(jda, dotenv, logPrefix);
+    public WGZimmerHandler(final JDA jda, final String logPrefix) {
+        super(jda, logPrefix);
     }
 
     //TODO: Make it possible to change search variables

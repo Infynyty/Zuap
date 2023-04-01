@@ -1,15 +1,5 @@
 package de.infynyty.zuap.insertion;
 
-import java.awt.*;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import lombok.Getter;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -24,6 +14,16 @@ import org.jetbrains.annotations.Range;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.nodes.Element;
+
+import java.awt.*;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * This class contains all information for an insertion on the  <a href="https://www.woko.ch">WOKO platform</a>.
@@ -171,7 +171,7 @@ public abstract class Insertion {
 
         MessageBuilder messageBuilder = new MessageBuilder();
         final Button linkButton = Button.link(String.valueOf(insertionURI), "Insertion Link");
-        final Button reportButton = Button.link("https://github.com/Infynyty/Zuap", "Report Issues");
+        final Button reportButton = Button.link("https://github.com/Infynyty/Zuap/issues", "Report Issues");
         final ActionRow actionRow = ActionRow.of(linkButton, reportButton);
 
         messageBuilder.setActionRows(actionRow);

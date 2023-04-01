@@ -1,7 +1,6 @@
 package de.infynyty.zuap.insertionHandler;
 
 import de.infynyty.zuap.insertion.WOKOInsertion;
-import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
 import org.jsoup.Jsoup;
@@ -20,10 +19,9 @@ public class WOKOInsertionHandler extends InsertionHandler<WOKOInsertion> {
 
     public WOKOInsertionHandler(
         final JDA jda,
-        final Dotenv dotenv,
         final String logPrefix
     ) {
-        super(jda, dotenv, logPrefix);
+        super(jda, logPrefix);
     }
 
     @Override
