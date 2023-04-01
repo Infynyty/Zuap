@@ -1,9 +1,9 @@
 package de.infynyty.zuap.insertionHandler;
 
 import de.infynyty.zuap.Zuap;
-import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,20 +29,16 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
     @NotNull
     private final JDA jda;
     @NotNull
-    private final Dotenv dotenv;
-    @NotNull
     private final String logPrefix;
 
     /**
      * Creates an insertion handler for a new website.
      *
      * @param jda        A reference to the discord bot.
-     * @param dotenv     The file containing environment variables.
      * @param logPrefix
      */
-    protected InsertionHandler(@NotNull final JDA jda, @NotNull final Dotenv dotenv, @NotNull final String logPrefix) {
+    protected InsertionHandler(@NotNull final JDA jda, @NotNull final String logPrefix) {
         this.jda = jda;
-        this.dotenv = dotenv;
         this.logPrefix = logPrefix;
     }
 
@@ -109,6 +105,15 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
         jda.getChannelById(TextChannel.class, logChannelId).sendMessage(logPrefix + logText).queue();
     }
 
+    private void logUpdates(final Level level, final Message message, final long logChannelId) {
+        log.log(level, logPrefix + message.toString());
+        if (jda.getChannelById(TextChannel.class, logChannelId) == null) {
+            log.log(Level.SEVERE, "Discord channel could not be found!");
+            return;
+        }
+        jda.getChannelById(TextChannel.class, logChannelId).sendMessage(message).queue();
+    }
+
     /**
      * Removes any local insertion that does not exist online anymore.
      */
@@ -132,7 +137,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
                 currentInsertions.add(updatedInsertion);
                 logUpdates(
                     Level.INFO,
-                    "New insertion found:\n\n" + updatedInsertion.toString(),
+                    updatedInsertion.toEmbed(),
                     Zuap.getMainChannelId()
                 );
             }
@@ -151,6 +156,10 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
             "Initial download of all insertions completed successfully!",
             Zuap.getLogChannelId()
         );
+        logUpdates(
+                Level.INFO,
+                currentInsertions.get(0).toEmbed(),
+                Zuap.getLogChannelId());
         currentInsertions.forEach(insertion -> System.out.println(insertion.toString()));
     }
 
@@ -166,9 +175,9 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
         } catch (IOException | InterruptedException | IllegalStateException e) {
             logUpdates(
                 Level.SEVERE,
-                "An exception occurred while trying to update the insertions." +
+                "An exception occurred while trying to update the insertions. " +
                     e.getMessage() +
-                    "Retrying in 15 minutes.",
+                    "Retrying in " + Zuap.UPDATE_DELAY_IN_MINS + " minutes.",
                 Zuap.getLogChannelId()
             );
             TimeUnit.MINUTES.sleep(Zuap.UPDATE_DELAY_IN_MINS);

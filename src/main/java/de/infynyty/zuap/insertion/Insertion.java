@@ -1,14 +1,27 @@
 package de.infynyty.zuap.insertion;
 
+import java.awt.*;
+import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import lombok.Getter;
 import lombok.extern.java.Log;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.nodes.Element;
 
@@ -22,6 +35,7 @@ import org.jsoup.nodes.Element;
 public abstract class Insertion {
 
     protected static final int RENT_UNDEFINED = -1;
+    private static final int MAX_DESCRIPTION_LENGTH = 200;
 
     @Nullable
     private Element element;
@@ -46,7 +60,6 @@ public abstract class Insertion {
      * possibility of obtaining a JSON file containing all needed data.
      *
      * @param element The given html file.
-     *
      * @throws IllegalStateException If the insertion URL cannot be read, an object cannot be constructed
      *                               successfully.
      */
@@ -66,7 +79,6 @@ public abstract class Insertion {
      * possible to get the needed data from a JSON file.
      *
      * @param jsonObject The given JSON data.
-     *
      * @throws NumberFormatException If the insertion URL cannot be read, an object cannot be constructed
      *                               successfully.
      */
@@ -121,12 +133,80 @@ public abstract class Insertion {
         return null;
     }
 
+    public Message toEmbed() {
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://jsonlink.io/api/extract?url=" + insertionURI))
+                .build();
+
+        HttpResponse<String> response;
+        try {
+            response = client.send(
+                    request,
+                    HttpResponse.BodyHandlers.ofString()
+            );
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        final JSONObject jsonObject = new JSONObject(response.body());
+        String insertionDescription = null;
+        if (jsonObject.has("description")) {
+            insertionDescription = jsonObject.getString("description");
+            if (insertionDescription.length() > MAX_DESCRIPTION_LENGTH) {
+                insertionDescription = insertionDescription.substring(0, MAX_DESCRIPTION_LENGTH);
+                insertionDescription = insertionDescription + "...";
+            }
+        }
+
+        String imageLink = null;
+        if (jsonObject.has("images")) {
+            final JSONArray images = jsonObject.getJSONArray("images");
+            if (!images.isEmpty()) {
+                imageLink = images.getString(0);
+            }
+        }
+
+
+        MessageBuilder messageBuilder = new MessageBuilder();
+        final Button linkButton = Button.link(String.valueOf(insertionURI), "Insertion Link");
+        final Button reportButton = Button.link("https://github.com/Infynyty/Zuap", "Report Issues");
+        final ActionRow actionRow = ActionRow.of(linkButton, reportButton);
+
+        messageBuilder.setActionRows(actionRow);
+
+        final EmbedBuilder builder = new EmbedBuilder();
+
+        if (rent != RENT_UNDEFINED) {
+            builder.addField(new MessageEmbed.Field("Rent", rent + " CHF", false));
+        }
+
+        builder.addField(new MessageEmbed.Field("Next Tenant Wanted", isNextTenantWanted ? "Yes" : "No", false))
+                .addField("Move-in Date", new SimpleDateFormat("dd.MM.yyyy").format(moveInDate), false);
+
+        if (postDate != null) {
+            builder.addField(new MessageEmbed.Field("Date Of Insertion Posting", new SimpleDateFormat("dd.MM.yyyy").format(postDate), false));
+        }
+
+        if (imageLink != null && !imageLink.isBlank()) {
+            builder.setImage(imageLink);
+        }
+        if (insertionDescription != null && !insertionDescription.isBlank()) {
+            builder.addField("Description", insertionDescription, false);
+        }
+        builder.setTitle("New Insertion On " + insertionURI.getHost(), insertionURI.toString()).setColor(Color.YELLOW);
+        messageBuilder.setEmbeds(builder.build());
+
+        return messageBuilder.build();
+    }
+
     @Override
     public String toString() {
         final StringBuilder stringBuilder = new StringBuilder();
         stringBuilder
-            .append("Insertion: \n")
-            .append("Link: ").append(insertionURI).append("\n");
+                .append("Insertion: \n")
+                .append("Link: ").append(insertionURI).append("\n");
 
         if (rent != RENT_UNDEFINED) {
             stringBuilder.append("Rent: CHF ").append(rent).append(", \n");
@@ -135,8 +215,8 @@ public abstract class Insertion {
         }
 
         stringBuilder
-            .append("Next tenant wanted: ").append(isNextTenantWanted).append(", \n")
-            .append("Move-in date: ").append(new SimpleDateFormat("dd.MM.yyyy").format(moveInDate)).append("\n");
+                .append("Next tenant wanted: ").append(isNextTenantWanted).append(", \n")
+                .append("Move-in date: ").append(new SimpleDateFormat("dd.MM.yyyy").format(moveInDate)).append("\n");
 
         if (postDate != null) {
             stringBuilder.append("Date of insertion posting: ").append(new SimpleDateFormat("dd.MM.yyyy").format(postDate)).append("\n");
