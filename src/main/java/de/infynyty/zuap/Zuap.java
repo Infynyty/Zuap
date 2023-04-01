@@ -13,8 +13,12 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import org.jetbrains.annotations.NotNull;
 
 import javax.security.auth.login.LoginException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Log
 public class Zuap {
@@ -25,16 +29,17 @@ public class Zuap {
 
     private final static ArrayList<InsertionHandler<? extends Insertion>> handlers = new ArrayList<>();
 
-    public static void main(String[] args) throws InterruptedException, LoginException {
+    public static void main(String[] args) throws InterruptedException, LoginException, IOException {
         final JDA jda = prepareDiscordBot();
         parseWebsiteData(jda);
     }
 
-    private static void parseWebsiteData(final JDA jda) {
+    private static void parseWebsiteData(final JDA jda) throws IOException {
         handlers.add(new WOKOInsertionHandler(jda,"WOKO: "));
         handlers.add(new WGZimmerHandler(jda, "WGZimmer: "));
         handlers.add(new MeinWGZimmerHandler(jda, "MeinWGZimmer: "));
 
+        log.addHandler(new FileHandler("Zuap.log", 100000, 3, true));
         handlers.forEach(handler -> new Thread(() -> {
             log.info("Started new thread for " + handler.getClass());
             while (true) {
@@ -71,5 +76,9 @@ public class Zuap {
 
     public static long getMainChannelId() {
         return Long.parseLong(dotenv.get("MAIN_CHANNEL_ID"));
+    }
+
+    public static void log(final Level level, final String message) {
+        log.log(level, message);
     }
 }

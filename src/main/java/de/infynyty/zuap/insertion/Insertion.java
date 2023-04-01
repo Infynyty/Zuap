@@ -23,7 +23,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 
 /**
  * This class contains all information for an insertion on the  <a href="https://www.woko.ch">WOKO platform</a>.
@@ -50,10 +50,11 @@ public abstract class Insertion {
     @Range(from = RENT_UNDEFINED, to = Integer.MAX_VALUE)
     private final int rent;
     private final boolean isNextTenantWanted;
-
     @Nullable
     private final Date postDate;
 
+    @NotNull
+    private final SortedMap<String, Optional<String>> properties;
 
     /**
      * Constructs a new insertion object from a given html string. This constructor should be used when there is no
@@ -65,6 +66,7 @@ public abstract class Insertion {
      */
     public Insertion(@NotNull final Element element) throws IllegalStateException {
         this.element = element;
+        this.properties = setProperties();
         this.insertionURI = setInsertionURL();
         this.moveInDate = setMoveInDate();
 
@@ -84,6 +86,7 @@ public abstract class Insertion {
      */
     public Insertion(@NotNull final JSONObject jsonObject) throws IllegalStateException {
         this.jsonObject = jsonObject;
+        this.properties = setProperties();
         this.insertionURI = setInsertionURL();
         this.moveInDate = setMoveInDate();
 
@@ -95,6 +98,8 @@ public abstract class Insertion {
 
     @NotNull
     protected abstract URL setInsertionURL() throws IllegalStateException;
+
+    protected abstract SortedMap<String, Optional<String>> setProperties();
 
     /**
      * Parses the rent from a given html string.
@@ -133,7 +138,7 @@ public abstract class Insertion {
         return null;
     }
 
-    public Message toEmbed() {
+    public Message toMessage() {
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -178,15 +183,9 @@ public abstract class Insertion {
 
         final EmbedBuilder builder = new EmbedBuilder();
 
-        if (rent != RENT_UNDEFINED) {
-            builder.addField(new MessageEmbed.Field("Rent", rent + " CHF", false));
-        }
-
-        builder.addField(new MessageEmbed.Field("Next Tenant Wanted", isNextTenantWanted ? "Yes" : "No", false))
-                .addField("Move-in Date", new SimpleDateFormat("dd.MM.yyyy").format(moveInDate), false);
-
-        if (postDate != null) {
-            builder.addField(new MessageEmbed.Field("Date Of Insertion Posting", new SimpleDateFormat("dd.MM.yyyy").format(postDate), false));
+        for (final String keys : properties.keySet()) {
+            if (properties.get(keys).isEmpty()) continue;
+            builder.addField(keys, properties.get(keys).get(), false);
         }
 
         if (imageLink != null && !imageLink.isBlank()) {
@@ -195,7 +194,7 @@ public abstract class Insertion {
         if (insertionDescription != null && !insertionDescription.isBlank()) {
             builder.addField("Description", insertionDescription, false);
         }
-        builder.setTitle("New Insertion On " + insertionURI.getHost(), insertionURI.toString()).setColor(Color.YELLOW);
+        builder.setTitle("New Insertion On " + insertionURI.getHost(), insertionURI.toString()).setColor(Color.getHSBColor(0.35f, 0.76f, 0.78f));
         messageBuilder.setEmbeds(builder.build());
 
         return messageBuilder.build();
@@ -204,24 +203,14 @@ public abstract class Insertion {
     @Override
     public String toString() {
         final StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder
-                .append("Insertion: \n")
-                .append("Link: ").append(insertionURI).append("\n");
-
-        if (rent != RENT_UNDEFINED) {
-            stringBuilder.append("Rent: CHF ").append(rent).append(", \n");
-        } else {
-            stringBuilder.append("Rent could not be parsed.\n");
+        stringBuilder.append("Insertion: {Link: ").append(insertionURI)
+                .append(" ; Move-In Date: ")
+                .append(new SimpleDateFormat("dd.MM.yyyy").format(moveInDate));
+        for (final String keys : properties.keySet()) {
+            if (properties.get(keys).isEmpty()) continue;
+            stringBuilder.append("; ").append(keys).append(": ").append(properties.get(keys));
         }
-
-        stringBuilder
-                .append("Next tenant wanted: ").append(isNextTenantWanted).append(", \n")
-                .append("Move-in date: ").append(new SimpleDateFormat("dd.MM.yyyy").format(moveInDate)).append("\n");
-
-        if (postDate != null) {
-            stringBuilder.append("Date of insertion posting: ").append(new SimpleDateFormat("dd.MM.yyyy").format(postDate)).append("\n");
-        }
-
+        stringBuilder.append(";}");
         return stringBuilder.toString();
     }
 

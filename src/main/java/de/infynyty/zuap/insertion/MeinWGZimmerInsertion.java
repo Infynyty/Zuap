@@ -10,7 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 
 @Log
 public class MeinWGZimmerInsertion extends Insertion {
@@ -30,6 +30,15 @@ public class MeinWGZimmerInsertion extends Insertion {
         } catch (NullPointerException | MalformedURLException e) {
             throw new IllegalStateException("URI to insertion could not be parsed.\n\n" + e.getMessage());
         }
+    }
+
+    @Override
+    protected SortedMap<String, Optional<String>> setProperties() {
+        SortedMap<String, Optional<String>> map = new TreeMap<>();
+        map.put("Rent", Optional.of(String.valueOf(setRent())));
+        map.put("Move-in Date", Optional.of(new SimpleDateFormat("dd.MM.yyyy").format(setMoveInDate())));
+        map.put("Next Tenant Wanted", Optional.of(setIsNewTenantWanted() ? "Yes" : "No"));
+        return map;
     }
 
     @Override

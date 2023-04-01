@@ -2,11 +2,13 @@ package de.infynyty.zuap.insertionHandler;
 
 import de.infynyty.zuap.Zuap;
 import lombok.extern.java.Log;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.io.IOException;
 import java.sql.Date;
 import java.time.Instant;
@@ -14,7 +16,6 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-@Log
 public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insertion.Insertion> {
 
     /**
@@ -76,7 +77,30 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
         parseUpdatedInsertions();
 
         if (currentInsertions.isEmpty()) {
-            addInitialInsertions();
+            final EmbedBuilder initalMessage = new EmbedBuilder();
+            initalMessage.setTitle("Loading...")
+                    .setColor(Color.ORANGE)
+                    .addField("Loading " + logPrefix + ".....................", " ", true)
+                    .addBlankField(true)
+                    .addField(":arrows_counterclockwise:", " ", false);
+            final EmbedBuilder updatedMessage = new EmbedBuilder();
+            updatedMessage.setTitle("Done")
+                    .setColor(Color.GREEN)
+                    .addField("Loading " + logPrefix + ".....................", " ", true)
+                    .addBlankField(true)
+                    .addField(":white_check_mark:", " ", false);
+            jda.getChannelById(TextChannel.class, Zuap.getLogChannelId()).sendMessageEmbeds(initalMessage.build()).queue(
+                    message -> {
+                        addInitialInsertions();
+                        message.editMessageEmbeds(updatedMessage.build()).queue();
+                    },
+                    message -> {
+                        updatedInsertions.clear();
+                        currentInsertions.clear();
+                        Zuap.log(Level.SEVERE, "Could not update loading message for discord. Initializing insertions anyway.");
+                        addInitialInsertions();
+                    }
+            );
             return;
         }
         addNewInsertions();
@@ -97,21 +121,21 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
      * @param logChannelId The discord channel that should be used to post this information.
      */
     private void logUpdates(final Level level, final String logText, final long logChannelId) {
-        log.log(level, logPrefix + logText);
+        Zuap.log(level, logPrefix + logText);
         if (jda.getChannelById(TextChannel.class, logChannelId) == null) {
-            log.log(Level.SEVERE, "Discord channel could not be found!");
+            Zuap.log(Level.SEVERE, "Discord channel could not be found!");
             return;
         }
         jda.getChannelById(TextChannel.class, logChannelId).sendMessage(logPrefix + logText).queue();
     }
 
-    private void logUpdates(final Level level, final Message message, final long logChannelId) {
-        log.log(level, logPrefix + message.toString());
+    private void logUpdates(final Level level, final Insertion insertion, final long logChannelId) {
+        Zuap.log(level, logPrefix + "Found new insertion: " + insertion.toString());
         if (jda.getChannelById(TextChannel.class, logChannelId) == null) {
-            log.log(Level.SEVERE, "Discord channel could not be found!");
+            Zuap.log(Level.SEVERE, "Discord channel could not be found!");
             return;
         }
-        jda.getChannelById(TextChannel.class, logChannelId).sendMessage(message).queue();
+        jda.getChannelById(TextChannel.class, logChannelId).sendMessage(insertion.toMessage()).queue();
     }
 
     /**
@@ -137,7 +161,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
                 currentInsertions.add(updatedInsertion);
                 logUpdates(
                     Level.INFO,
-                    updatedInsertion.toEmbed(),
+                    updatedInsertion,
                     Zuap.getMainChannelId()
                 );
             }
@@ -151,16 +175,11 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
         // go through all new insertions and check whether they are contained in the current insertions
         // update, if that isn't the case
         currentInsertions.addAll(updatedInsertions);
-        logUpdates(
-            Level.INFO,
-            "Initial download of all insertions completed successfully!",
-            Zuap.getLogChannelId()
-        );
+        Zuap.log(Level.INFO, logPrefix + "Initial download of all insertions complete.");
         logUpdates(
                 Level.INFO,
-                currentInsertions.get(0).toEmbed(),
+                currentInsertions.get(0),
                 Zuap.getLogChannelId());
-        currentInsertions.forEach(insertion -> System.out.println(insertion.toString()));
     }
 
     /**
