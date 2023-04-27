@@ -6,7 +6,7 @@ you about any new insertions posted on any of the included websites.
 
 ## Hosting your own version of Zuap
 
-### Prerequisits
+### Prerequisites
 
 Before installing the app, you will need:
 
