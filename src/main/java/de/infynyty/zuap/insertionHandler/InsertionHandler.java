@@ -2,13 +2,10 @@ package de.infynyty.zuap.insertionHandler;
 
 import de.infynyty.zuap.Zuap;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.TextChannel;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.HttpStatusException;
 
-import java.awt.*;
 import java.io.IOException;
 import java.sql.Date;
 import java.time.Instant;
@@ -29,7 +26,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
     @NotNull
     private final JDA jda;
     @NotNull
-    private final String logPrefix;
+    private final String handlerName;
     @NotNull
     private final InsertionAnnouncer announcer;
     private boolean isInitialized = false;
@@ -64,7 +61,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
             final String updatedData = pullUpdatedData();
             updatedInsertions.addAll(getInsertionsFromData(updatedData));
         } catch (IOException | InterruptedException | IllegalStateException e) {
-            Zuap.log(Level.SEVERE, "An exception occurred while trying to update the insertions. " + e.getMessage());
+            Zuap.log(Level.SEVERE, handlerName, "An exception occurred while trying to update the insertions. " + e.getMessage());
             return;
         }
         if (!isInitialized) {
@@ -76,6 +73,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
         removeDeletedInsertions();
         Zuap.log(
                 Level.INFO,
+                handlerName,
                 "Insertions updated at " + Date.from(Instant.now()) + ", numbers of insertions: " + updatedInsertions.size()
         );
     }
@@ -90,7 +88,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
                 currentInsertion -> (!(updatedInsertions.contains(currentInsertion)))
         );
         if (wasRemoved) {
-            Zuap.log(Level.INFO, "One or more insertions were removed.");
+            Zuap.log(Level.INFO, handlerName, "One or more insertions were removed.");
         }
     }
 
@@ -112,6 +110,10 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
     private void addInitialInsertions() {
         isInitialized = true;
         currentInsertions.addAll(updatedInsertions);
-        Zuap.log(Level.INFO, logPrefix + "Initial download of all insertions complete.");
+        Zuap.log(Level.INFO, handlerName, "Initial download of all insertions complete.");
+    }
+
+    public @NotNull String getHandlerName() {
+        return handlerName;
     }
 }

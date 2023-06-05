@@ -44,7 +44,7 @@ public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
 
         if (wgZimmerResponse.statusCode() >= 299) {
             throw new HttpStatusException(
-                    "Failed to update WGZimmer."
+                    "Failed to update WGZimmer"
                     , wgZimmerResponse.statusCode()
                     , wgZimmerRequest.uri().toString()
                     );

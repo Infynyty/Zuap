@@ -32,31 +32,33 @@ public class Zuap {
         final DiscordHandler discordHandler = new DiscordHandler(getMainChannelId());
         final JDA jda = discordHandler.prepareDiscordBot();
 
-        log.addHandler(new FileHandler("Zuap.log", 100000, 3, true));
+        log.addHandler(new FileHandler("Zuap.log", 1000000, 1, true));
         log.addHandler(new DiscordLoggingHandler(getLogChannelId(), jda));
         parseWebsiteData(jda, discordHandler);
     }
 
     private static void parseWebsiteData(final JDA jda, final InsertionAnnouncer announcer){
-        handlers.add(new WOKOInsertionHandler(jda,"WOKO: ", announcer));
-        handlers.add(new WGZimmerHandler(jda, "WGZimmer: ", announcer));
-        handlers.add(new MeinWGZimmerHandler(jda, "MeinWGZimmer: ", announcer));
+        handlers.add(new WOKOInsertionHandler(jda,"WOKO", announcer));
+        handlers.add(new WGZimmerHandler(jda, "WGZimmer", announcer));
+        handlers.add(new MeinWGZimmerHandler(jda, "MeinWGZimmer", announcer));
 
 
-        handlers.forEach(handler -> new Thread(() -> {
-            Zuap.log(Level.CONFIG, "Started new thread for " + handler.getClass());
-            while (true) {
-                try {
-                    handler.updateCurrentInsertions();
-                    TimeUnit.MINUTES.sleep(UPDATE_DELAY_IN_MINS);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+        handlers.forEach(handler -> {
+            final Thread t = new Thread(() -> {
+                Zuap.log(Level.CONFIG, "Started new thread for " + handler.getClass());
+                while (true) {
+                    try {
+                        handler.updateCurrentInsertions();
+                        TimeUnit.MINUTES.sleep(UPDATE_DELAY_IN_MINS);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-            }
-        }).start());
+            });
+            t.setName(handler.getHandlerName());
+            t.start();
+        });
     }
-
-
 
     public static long getLogChannelId() {
         return Long.parseLong(dotenv.get("LOG_CHANNEL_ID"));
@@ -68,5 +70,9 @@ public class Zuap {
 
     public static void log(final Level level, final String message) {
         log.log(level, message);
+    }
+
+    public static void log(final Level level, final String prefix, final String message) {
+        log.log(level, prefix + ": " + message);
     }
 }
