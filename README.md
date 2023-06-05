@@ -4,6 +4,12 @@ Zuap is a web scraper used to make the apartment hunt around Zurich a bit easier
 (although it can really be used to search for apartments anywhere). Zuap combines web scraping with the discord API to quickly inform
 you about any new insertions posted on any of the included websites.
 
+## Using Zuap
+
+If you do not want to host your own version of Zuap, you can simply join the already existing Discord server to use all the features.
+
+[![](https://dcbadge.vercel.app/api/server/BnWfNSzj7N)](https://discord.gg/BnWfNSzj7N)
+
 ## Hosting your own version of Zuap
 
 ### Prerequisites
