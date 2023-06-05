@@ -1,21 +1,19 @@
 package de.infynyty.zuap;
 
-import javax.security.auth.login.LoginException;
-
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
-
+import de.infynyty.zuap.discord.DiscordHandler;
+import de.infynyty.zuap.discord.DiscordLoggingHandler;
 import de.infynyty.zuap.insertion.Insertion;
-import de.infynyty.zuap.insertionHandler.InsertionHandler;
-import de.infynyty.zuap.insertionHandler.MeinWGZimmerHandler;
-import de.infynyty.zuap.insertionHandler.WGZimmerHandler;
-import de.infynyty.zuap.insertionHandler.WOKOInsertionHandler;
+import de.infynyty.zuap.insertionHandler.*;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.TextChannel;
-import org.jetbrains.annotations.NotNull;
+
+import javax.security.auth.login.LoginException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
 
 @Log
 public class Zuap {
@@ -26,44 +24,36 @@ public class Zuap {
 
     private final static ArrayList<InsertionHandler<? extends Insertion>> handlers = new ArrayList<>();
 
-    public static void main(String[] args) throws InterruptedException, LoginException {
-        final JDA jda = prepareDiscordBot();
-        parseWebsiteData(jda);
+    public static void main(String[] args) throws InterruptedException, LoginException, IOException {
+        final DiscordHandler discordHandler = new DiscordHandler(getMainChannelId());
+        final JDA jda = discordHandler.prepareDiscordBot();
+
+        log.addHandler(new FileHandler("Zuap.log", 1000000, 1, true));
+        log.addHandler(new DiscordLoggingHandler(getLogChannelId(), jda));
+        parseWebsiteData(jda, discordHandler);
     }
 
-    private static void parseWebsiteData(final JDA jda) {
-        handlers.add(new WOKOInsertionHandler(jda, dotenv, "WOKO: "));
-        handlers.add(new WGZimmerHandler(jda, dotenv, "WGZimmer: "));
-        handlers.add(new MeinWGZimmerHandler(jda, dotenv, "MeinWGZimmer: "));
+    private static void parseWebsiteData(final JDA jda, final InsertionAnnouncer announcer){
+        handlers.add(new WOKOInsertionHandler(jda,"WOKO", announcer));
+        handlers.add(new WGZimmerHandler(jda, "WGZimmer", announcer));
+        handlers.add(new MeinWGZimmerHandler(jda, "MeinWGZimmer", announcer));
 
-        handlers.forEach(handler -> new Thread(() -> {
-            log.info("Started new thread for " + handler.getClass());
-            while (true) {
-                try {
-                    handler.updateCurrentInsertions();
-                    TimeUnit.MINUTES.sleep(UPDATE_DELAY_IN_MINS);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+
+        handlers.forEach(handler -> {
+            final Thread t = new Thread(() -> {
+                Zuap.log(Level.CONFIG, "Started new thread for " + handler.getClass());
+                while (true) {
+                    try {
+                        handler.updateCurrentInsertions();
+                        TimeUnit.MINUTES.sleep(UPDATE_DELAY_IN_MINS);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-            }
-        }).start());
-    }
-
-    @NotNull
-    private static JDA prepareDiscordBot() throws InterruptedException, LoginException {
-        final JDA jda;
-        try {
-            jda = JDABuilder.createDefault(dotenv.get("TOKEN")).build();
-        } catch (LoginException e) {
-            log.severe("JDA login failed");
-            throw new LoginException("JDA login failed");
-        }
-        jda.awaitReady();
-        log.info("JDA bot ready");
-        jda.getChannelById(TextChannel.class, getLogChannelId()).sendMessage(
-            "Bot online."
-        ).queue();
-        return jda;
+            });
+            t.setName(handler.getHandlerName());
+            t.start();
+        });
     }
 
     public static long getLogChannelId() {
@@ -72,5 +62,13 @@ public class Zuap {
 
     public static long getMainChannelId() {
         return Long.parseLong(dotenv.get("MAIN_CHANNEL_ID"));
+    }
+
+    public static void log(final Level level, final String message) {
+        log.log(level, message);
+    }
+
+    public static void log(final Level level, final String prefix, final String message) {
+        log.log(level, prefix + ": " + message);
     }
 }

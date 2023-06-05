@@ -6,11 +6,14 @@ import org.jetbrains.annotations.Nullable;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,12 +40,21 @@ public class WOKOInsertion extends Insertion {
     }
 
     @Override
-    protected @NotNull URL setInsertionURL() {
+    protected @NotNull URI setInsertionURI() {
         try {
-            return new URL(PROTOCOL + DOMAIN + super.getElement().getElementsByTag("a").get(0).attr("href"));
-        } catch (IndexOutOfBoundsException | MalformedURLException e) {
+            return new URI(PROTOCOL + DOMAIN + super.getElement().getElementsByTag("a").get(0).attr("href"));
+        } catch (IndexOutOfBoundsException | URISyntaxException e) {
             throw new IllegalStateException("URI to insertion could not be parsed.\n\n" + e.getMessage());
         }
+    }
+
+    @Override
+    protected SortedMap<String, Optional<String>> setProperties() {
+        SortedMap<String, Optional<String>> map = new TreeMap<>();
+        map.put("Rent", Optional.of(String.valueOf(setRent())));
+        map.put("Move-in Date", Optional.of(new SimpleDateFormat("dd.MM.yyyy").format(setMoveInDate())));
+        map.put("Next Tenant Wanted", Optional.of(setIsNewTenantWanted() ? "Yes" : "No"));
+        return map;
     }
 
     //TODO: Use html parser instead of regex

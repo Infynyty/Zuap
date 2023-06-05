@@ -1,9 +1,9 @@
 package de.infynyty.zuap.insertionHandler;
 
+import de.infynyty.zuap.Zuap;
 import de.infynyty.zuap.insertion.WOKOInsertion;
-import io.github.cdimascio.dotenv.Dotenv;
-import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -14,20 +14,17 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.logging.Level;
 
-@Log
 public class WOKOInsertionHandler extends InsertionHandler<WOKOInsertion> {
 
-    public WOKOInsertionHandler(
-        final JDA jda,
-        final Dotenv dotenv,
-        final String logPrefix
-    ) {
-        super(jda, dotenv, logPrefix);
+
+    public WOKOInsertionHandler(@NotNull JDA jda, @NotNull String logPrefix, @NotNull InsertionAnnouncer announcer) {
+        super(jda, logPrefix, announcer);
     }
 
     @Override
-    protected String pullUpdatedData() throws InterruptedException, IOException {
+    protected String pullUpdatedData() throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create("https://www.woko.ch/de/zimmer-in-zuerich"))
@@ -48,7 +45,7 @@ public class WOKOInsertionHandler extends InsertionHandler<WOKOInsertion> {
             try {
                 insertions.add(new WOKOInsertion(element));
             } catch (IllegalStateException e) {
-            log.warning("Insertion could not be included because of a missing insertion URL!");
+                Zuap.log(Level.WARNING, getHandlerName(),"Insertion could not be included because of a missing insertion URL!");
             }
         });
         return insertions;

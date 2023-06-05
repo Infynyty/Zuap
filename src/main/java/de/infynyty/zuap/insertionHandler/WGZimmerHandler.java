@@ -1,9 +1,10 @@
 package de.infynyty.zuap.insertionHandler;
 
+import de.infynyty.zuap.Zuap;
 import de.infynyty.zuap.insertion.WGZimmerInsertion;
-import io.github.cdimascio.dotenv.Dotenv;
-import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
+import org.jetbrains.annotations.NotNull;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -14,11 +15,13 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.logging.Level;
 
-@Log
 public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
-    public WGZimmerHandler(final JDA jda, final Dotenv dotenv, final String logPrefix) {
-        super(jda, dotenv, logPrefix);
+
+
+    public WGZimmerHandler(@NotNull JDA jda, @NotNull String logPrefix, @NotNull InsertionAnnouncer announcer) {
+        super(jda, logPrefix, announcer);
     }
 
     //TODO: Make it possible to change search variables
@@ -37,7 +40,13 @@ public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
         HttpResponse<String> wgZimmerResponse = wgZimmerClient.send(wgZimmerRequest,
             HttpResponse.BodyHandlers.ofString());
 
-
+        if (wgZimmerResponse.statusCode() >= 299) {
+            throw new HttpStatusException(
+                    "Failed to update WGZimmer"
+                    , wgZimmerResponse.statusCode()
+                    , wgZimmerRequest.uri().toString()
+                    );
+        }
         return wgZimmerResponse.body();
     }
 
@@ -50,7 +59,7 @@ public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
             try {
                 insertions.add(new WGZimmerInsertion(element));
             } catch (NumberFormatException e) {
-                log.warning("Insertion could not be included because of a missing insertion number!");
+                Zuap.log(Level.WARNING,getHandlerName(),"Insertion could not be included because of a missing insertion number!");
             }
         });
         return insertions;

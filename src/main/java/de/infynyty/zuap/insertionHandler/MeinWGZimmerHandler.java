@@ -1,8 +1,7 @@
 package de.infynyty.zuap.insertionHandler;
 
+import de.infynyty.zuap.Zuap;
 import de.infynyty.zuap.insertion.MeinWGZimmerInsertion;
-import io.github.cdimascio.dotenv.Dotenv;
-import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -14,22 +13,13 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.logging.Level;
 
-@Log
 public class MeinWGZimmerHandler extends InsertionHandler<MeinWGZimmerInsertion> {
-    /**
-     * Creates an insertion handler for a new website.
-     *
-     * @param jda       A reference to the discord bot.
-     * @param dotenv    The file containing environment variables.
-     * @param logPrefix
-     */
-    public MeinWGZimmerHandler(
-        final @NotNull JDA jda,
-        final @NotNull Dotenv dotenv,
-        final @NotNull String logPrefix
-    ) {
-        super(jda, dotenv, logPrefix);
+
+
+    public MeinWGZimmerHandler(@NotNull JDA jda, @NotNull String logPrefix, @NotNull InsertionAnnouncer announcer) {
+        super(jda, logPrefix, announcer);
     }
 
     @Override
@@ -66,7 +56,7 @@ public class MeinWGZimmerHandler extends InsertionHandler<MeinWGZimmerInsertion>
             try {
                 insertions.add(new MeinWGZimmerInsertion(rooms.getJSONObject(i)));
             } catch (IllegalStateException e) {
-                log.warning("Insertion could not be included because of a missing insertion URL!");
+                Zuap.log(Level.WARNING, getHandlerName(), "Insertion could not be included because of a missing insertion URL!");
             }
         }
         return insertions;
