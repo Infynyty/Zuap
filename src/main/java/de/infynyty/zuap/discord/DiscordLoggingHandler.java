@@ -14,6 +14,9 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
+/**
+ * A custom handler to log to a Discord server.
+ */
 @RequiredArgsConstructor
 public class DiscordLoggingHandler extends Handler {
     private final long logChannelID;

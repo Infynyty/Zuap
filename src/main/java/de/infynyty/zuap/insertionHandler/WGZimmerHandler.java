@@ -4,7 +4,6 @@ import de.infynyty.zuap.Zuap;
 import de.infynyty.zuap.insertion.WGZimmerInsertion;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
-import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
@@ -17,8 +16,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.logging.Level;
 
-@Log
 public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
 
 
@@ -61,7 +60,7 @@ public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
             try {
                 insertions.add(new WGZimmerInsertion(element));
             } catch (NumberFormatException e) {
-                log.warning("Insertion could not be included because of a missing insertion number!");
+                Zuap.log(Level.WARNING,getHandlerName(),"Insertion could not be included because of a missing insertion number!");
             }
         });
         return insertions;

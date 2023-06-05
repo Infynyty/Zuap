@@ -14,17 +14,27 @@ import org.jetbrains.annotations.Nullable;
 import javax.security.auth.login.LoginException;
 import java.util.logging.Level;
 
+/**
+ * This class handles all logic regarding the Discord bot.
+ */
 @RequiredArgsConstructor
 public class DiscordHandler implements InsertionAnnouncer {
 
 
     private final static Dotenv dotenv = Dotenv.load();
 
+    /** The id of the channel that new insertions should be posted to. **/
     private final long mainChannelID;
 
     @Nullable
     private JDA jda;
 
+    /**
+     * Initializes the connection to the Discord bot.
+     * @return A JDA object to use for further Discord related activities.
+     * @throws InterruptedException
+     * @throws LoginException If the Discord API token is invalid.
+     */
     @NotNull
     public JDA prepareDiscordBot() throws InterruptedException, LoginException {
         final JDA jda;
@@ -40,6 +50,10 @@ public class DiscordHandler implements InsertionAnnouncer {
         return jda;
     }
 
+    /**
+     * Announces an insertion on the Discord server.
+     * @param insertion The insertion to announce, which must not be null.
+     */
     @Override
     public void announce(@NotNull final Insertion insertion) {
         if (jda == null) {

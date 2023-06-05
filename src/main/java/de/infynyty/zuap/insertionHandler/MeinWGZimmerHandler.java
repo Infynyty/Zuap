@@ -1,5 +1,6 @@
 package de.infynyty.zuap.insertionHandler;
 
+import de.infynyty.zuap.Zuap;
 import de.infynyty.zuap.insertion.MeinWGZimmerInsertion;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
@@ -13,8 +14,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.logging.Level;
 
-@Log
 public class MeinWGZimmerHandler extends InsertionHandler<MeinWGZimmerInsertion> {
 
 
@@ -56,7 +57,7 @@ public class MeinWGZimmerHandler extends InsertionHandler<MeinWGZimmerInsertion>
             try {
                 insertions.add(new MeinWGZimmerInsertion(rooms.getJSONObject(i)));
             } catch (IllegalStateException e) {
-                log.warning("Insertion could not be included because of a missing insertion URL!");
+                Zuap.log(Level.WARNING, getHandlerName(), "Insertion could not be included because of a missing insertion URL!");
             }
         }
         return insertions;

@@ -4,7 +4,6 @@ import de.infynyty.zuap.Zuap;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.NotNull;
-import org.jsoup.HttpStatusException;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -38,7 +37,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
      * @throws IOException
      * @throws InterruptedException
      */
-    protected abstract String pullUpdatedData() throws IOException, InterruptedException, HttpStatusException;
+    protected abstract String pullUpdatedData() throws IOException, InterruptedException;
 
     /**
      * Parses the entire data file, so that all insertions are read into {@link Insertion} objects.
@@ -66,7 +65,6 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
         }
         if (!isInitialized) {
             addInitialInsertions();
-            announcer.announce(currentInsertions.get(0));
             return;
         }
         addNewInsertions();

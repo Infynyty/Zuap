@@ -1,7 +1,7 @@
 # Created by https://www.toptal.com/developers/gitignore/api/intellij,macos,windows,dotenv
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,macos,windows,dotenv
 
-Zuap.log.*
+Zuap.log*
 
 
 ### dotenv ###
