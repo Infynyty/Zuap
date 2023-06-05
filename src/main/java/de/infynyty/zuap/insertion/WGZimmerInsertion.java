@@ -2,6 +2,7 @@ package de.infynyty.zuap.insertion;
 
 import lombok.extern.java.Log;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -71,7 +72,7 @@ public class WGZimmerInsertion extends Insertion {
     }
 
     @Override
-    protected @NotNull Date setMoveInDate() {
+    protected @Nullable Date setMoveInDate() {
         final String moveInDate = super.getElement()
             .getElementsByClass("from-date")
             .get(0)

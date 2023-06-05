@@ -43,7 +43,7 @@ public class MeinWGZimmerInsertion extends Insertion {
     }
 
     @Override
-    protected @NotNull Date setMoveInDate() {
+    protected @Nullable Date setMoveInDate() {
         final String date = super.getJsonObject().getJSONObject("ValidFrom").getString("iso");
         try {
             return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").parse(date);

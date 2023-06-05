@@ -34,9 +34,10 @@ public class Zuap {
     }
 
     private static void parseWebsiteData(final JDA jda, final InsertionAnnouncer announcer){
-        handlers.add(new WOKOInsertionHandler(jda,"WOKO", announcer));
-        handlers.add(new WGZimmerHandler(jda, "WGZimmer", announcer));
-        handlers.add(new MeinWGZimmerHandler(jda, "MeinWGZimmer", announcer));
+//        handlers.add(new WOKOInsertionHandler(jda,"WOKO", announcer));
+//        handlers.add(new WGZimmerHandler(jda, "WGZimmer", announcer));
+//        handlers.add(new MeinWGZimmerHandler(jda, "MeinWGZimmer", announcer));
+        handlers.add(new FlatfoxHandler(jda, "Flatfox", announcer));
 
 
         handlers.forEach(handler -> {

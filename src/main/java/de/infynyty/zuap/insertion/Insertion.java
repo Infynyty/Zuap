@@ -123,7 +123,7 @@ public abstract class Insertion {
      *
      * @return A date.
      */
-    @NotNull
+    @Nullable
     protected abstract Date setMoveInDate();
 
     /**
