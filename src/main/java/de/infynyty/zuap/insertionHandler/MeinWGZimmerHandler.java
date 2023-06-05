@@ -16,17 +16,10 @@ import java.util.ArrayList;
 
 @Log
 public class MeinWGZimmerHandler extends InsertionHandler<MeinWGZimmerInsertion> {
-    /**
-     * Creates an insertion handler for a new website.
-     *
-     * @param jda       A reference to the discord bot.
-     * @param logPrefix
-     */
-    public MeinWGZimmerHandler(
-        final @NotNull JDA jda,
-        final @NotNull String logPrefix
-    ) {
-        super(jda, logPrefix);
+
+
+    public MeinWGZimmerHandler(@NotNull JDA jda, @NotNull String logPrefix, @NotNull InsertionAnnouncer announcer) {
+        super(jda, logPrefix, announcer);
     }
 
     @Override

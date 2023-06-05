@@ -1,8 +1,10 @@
 package de.infynyty.zuap.insertionHandler;
 
 import de.infynyty.zuap.insertion.WOKOInsertion;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -17,11 +19,9 @@ import java.util.ArrayList;
 @Log
 public class WOKOInsertionHandler extends InsertionHandler<WOKOInsertion> {
 
-    public WOKOInsertionHandler(
-        final JDA jda,
-        final String logPrefix
-    ) {
-        super(jda, logPrefix);
+
+    public WOKOInsertionHandler(@NotNull JDA jda, @NotNull String logPrefix, @NotNull InsertionAnnouncer announcer) {
+        super(jda, logPrefix, announcer);
     }
 
     @Override

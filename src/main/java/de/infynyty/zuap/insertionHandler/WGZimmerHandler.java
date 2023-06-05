@@ -1,8 +1,12 @@
 package de.infynyty.zuap.insertionHandler;
 
+import de.infynyty.zuap.Zuap;
 import de.infynyty.zuap.insertion.WGZimmerInsertion;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -16,8 +20,10 @@ import java.util.ArrayList;
 
 @Log
 public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
-    public WGZimmerHandler(final JDA jda, final String logPrefix) {
-        super(jda, logPrefix);
+
+
+    public WGZimmerHandler(@NotNull JDA jda, @NotNull String logPrefix, @NotNull InsertionAnnouncer announcer) {
+        super(jda, logPrefix, announcer);
     }
 
     //TODO: Make it possible to change search variables
@@ -36,7 +42,13 @@ public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
         HttpResponse<String> wgZimmerResponse = wgZimmerClient.send(wgZimmerRequest,
             HttpResponse.BodyHandlers.ofString());
 
-
+        if (wgZimmerResponse.statusCode() >= 299) {
+            throw new HttpStatusException(
+                    "Failed to update WGZimmer."
+                    , wgZimmerResponse.statusCode()
+                    , wgZimmerRequest.uri().toString()
+                    );
+        }
         return wgZimmerResponse.body();
     }
 

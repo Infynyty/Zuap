@@ -1,10 +1,9 @@
 package de.infynyty.zuap;
 
+import de.infynyty.zuap.discord.DiscordHandler;
+import de.infynyty.zuap.discord.DiscordLoggingHandler;
 import de.infynyty.zuap.insertion.Insertion;
-import de.infynyty.zuap.insertionHandler.InsertionHandler;
-import de.infynyty.zuap.insertionHandler.MeinWGZimmerHandler;
-import de.infynyty.zuap.insertionHandler.WGZimmerHandler;
-import de.infynyty.zuap.insertionHandler.WOKOInsertionHandler;
+import de.infynyty.zuap.insertionHandler.*;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.JDA;
@@ -30,18 +29,22 @@ public class Zuap {
     private final static ArrayList<InsertionHandler<? extends Insertion>> handlers = new ArrayList<>();
 
     public static void main(String[] args) throws InterruptedException, LoginException, IOException {
-        final JDA jda = prepareDiscordBot();
-        parseWebsiteData(jda);
-    }
-
-    private static void parseWebsiteData(final JDA jda) throws IOException {
-        handlers.add(new WOKOInsertionHandler(jda,"WOKO: "));
-        handlers.add(new WGZimmerHandler(jda, "WGZimmer: "));
-        handlers.add(new MeinWGZimmerHandler(jda, "MeinWGZimmer: "));
+        final DiscordHandler discordHandler = new DiscordHandler(getMainChannelId());
+        final JDA jda = discordHandler.prepareDiscordBot();
 
         log.addHandler(new FileHandler("Zuap.log", 100000, 3, true));
+        log.addHandler(new DiscordLoggingHandler(getLogChannelId(), jda));
+        parseWebsiteData(jda, discordHandler);
+    }
+
+    private static void parseWebsiteData(final JDA jda, final InsertionAnnouncer announcer){
+        handlers.add(new WOKOInsertionHandler(jda,"WOKO: ", announcer));
+        handlers.add(new WGZimmerHandler(jda, "WGZimmer: ", announcer));
+        handlers.add(new MeinWGZimmerHandler(jda, "MeinWGZimmer: ", announcer));
+
+
         handlers.forEach(handler -> new Thread(() -> {
-            log.info("Started new thread for " + handler.getClass());
+            Zuap.log(Level.CONFIG, "Started new thread for " + handler.getClass());
             while (true) {
                 try {
                     handler.updateCurrentInsertions();
@@ -53,22 +56,7 @@ public class Zuap {
         }).start());
     }
 
-    @NotNull
-    private static JDA prepareDiscordBot() throws InterruptedException, LoginException {
-        final JDA jda;
-        try {
-            jda = JDABuilder.createDefault(dotenv.get("TOKEN")).build();
-        } catch (LoginException e) {
-            log.severe("JDA login failed");
-            throw new LoginException("JDA login failed");
-        }
-        jda.awaitReady();
-        log.info("JDA bot ready");
-        jda.getChannelById(TextChannel.class, getLogChannelId()).sendMessage(
-            "Bot online."
-        ).queue();
-        return jda;
-    }
+
 
     public static long getLogChannelId() {
         return Long.parseLong(dotenv.get("LOG_CHANNEL_ID"));
