@@ -5,7 +5,6 @@ import lombok.extern.java.Log;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +17,6 @@ import org.jsoup.nodes.Element;
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -44,7 +42,7 @@ public abstract class Insertion {
     private JSONObject jsonObject;
 
     @NotNull
-    protected final URL insertionURI;
+    protected final URI insertionURI;
     @NotNull
     private final Date moveInDate;
     @Range(from = RENT_UNDEFINED, to = Integer.MAX_VALUE)
@@ -67,7 +65,7 @@ public abstract class Insertion {
     public Insertion(@NotNull final Element element) throws IllegalStateException {
         this.element = element;
         this.properties = setProperties();
-        this.insertionURI = setInsertionURL();
+        this.insertionURI = setInsertionURI();
         this.moveInDate = setMoveInDate();
 
         this.isNextTenantWanted = setIsNewTenantWanted();
@@ -87,7 +85,7 @@ public abstract class Insertion {
     public Insertion(@NotNull final JSONObject jsonObject) throws IllegalStateException {
         this.jsonObject = jsonObject;
         this.properties = setProperties();
-        this.insertionURI = setInsertionURL();
+        this.insertionURI = setInsertionURI();
         this.moveInDate = setMoveInDate();
 
         this.isNextTenantWanted = setIsNewTenantWanted();
@@ -97,7 +95,7 @@ public abstract class Insertion {
     }
 
     @NotNull
-    protected abstract URL setInsertionURL() throws IllegalStateException;
+    protected abstract URI setInsertionURI() throws IllegalStateException;
 
     protected abstract SortedMap<String, Optional<String>> setProperties();
 
