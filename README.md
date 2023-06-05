@@ -8,7 +8,7 @@ you about any new insertions posted on any of the included websites.
 
 If you do not want to host your own version of Zuap, you can simply join the already existing Discord server to use all the features.
 
-![Discord Banner 1](https://discordapp.com/api/guilds/1002178166112137246/widget.png?style=banner1)
+![Discord Shield](https://discordapp.com/api/guilds/1002178166112137246/widget.png?style=banner2)
 
 ## Hosting your own version of Zuap
 
