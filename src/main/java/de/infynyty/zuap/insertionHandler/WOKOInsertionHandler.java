@@ -2,8 +2,8 @@ package de.infynyty.zuap.insertionHandler;
 
 import de.infynyty.zuap.Zuap;
 import de.infynyty.zuap.insertion.WOKOInsertion;
-import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.NotNull;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -19,19 +19,26 @@ import java.util.logging.Level;
 public class WOKOInsertionHandler extends InsertionHandler<WOKOInsertion> {
 
 
-    public WOKOInsertionHandler(@NotNull JDA jda, @NotNull String logPrefix, @NotNull InsertionAnnouncer announcer) {
-        super(jda, logPrefix, announcer);
+    public WOKOInsertionHandler(@NotNull String logPrefix, @NotNull InsertionAnnouncer announcer, @NotNull HttpClient httpClient) {
+        super(logPrefix, announcer, httpClient);
     }
 
     @Override
     protected String pullUpdatedData() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create("https://www.woko.ch/de/zimmer-in-zuerich"))
             .GET()
             .build();
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = getHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() >= 299) {
+            throw new HttpStatusException(
+                    "Failed to update WOKO"
+                    , response.statusCode()
+                    , request.uri().toString()
+            );
+        }
 
         return response.body();
     }

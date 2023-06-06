@@ -2,10 +2,10 @@ package de.infynyty.zuap.insertionHandler;
 
 import de.infynyty.zuap.Zuap;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.net.http.HttpClient;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -23,11 +23,11 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
      */
     private final ArrayList<Insertion> updatedInsertions = new ArrayList<>();
     @NotNull
-    private final JDA jda;
-    @NotNull
     private final String handlerName;
     @NotNull
     private final InsertionAnnouncer announcer;
+    @NotNull
+    private final HttpClient httpClient;
     private boolean isInitialized = false;
 
     /**
@@ -59,7 +59,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
         try {
             final String updatedData = pullUpdatedData();
             updatedInsertions.addAll(getInsertionsFromData(updatedData));
-        } catch (IOException | InterruptedException | IllegalStateException e) {
+        } catch (Exception e) {
             Zuap.log(Level.SEVERE, handlerName, "An exception occurred while trying to update the insertions. " + e.getMessage());
             return;
         }
@@ -114,5 +114,9 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
 
     public @NotNull String getHandlerName() {
         return handlerName;
+    }
+
+    protected @NotNull HttpClient getHttpClient() {
+        return httpClient;
     }
 }

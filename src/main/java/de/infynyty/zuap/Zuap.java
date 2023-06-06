@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.JDA;
 
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
+import java.net.http.HttpClient;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.FileHandler;
@@ -30,9 +31,14 @@ public class Zuap {
 
         log.addHandler(new FileHandler("Zuap.log", 1000000, 1, true));
         log.addHandler(new DiscordLoggingHandler(getLogChannelId(), jda));
-        parseWebsiteData(jda, discordHandler);
+        parseWebsiteData(discordHandler);
     }
 
+    private static void parseWebsiteData(final InsertionAnnouncer announcer){
+        final HttpClient httpClient = HttpClient.newHttpClient();
+        handlers.add(new WOKOInsertionHandler("WOKO", announcer, httpClient));
+        handlers.add(new WGZimmerHandler("WGZimmer", announcer, httpClient));
+        handlers.add(new MeinWGZimmerHandler("MeinWGZimmer", announcer, httpClient));
     private static void parseWebsiteData(final JDA jda, final InsertionAnnouncer announcer){
 //        handlers.add(new WOKOInsertionHandler(jda,"WOKO", announcer));
 //        handlers.add(new WGZimmerHandler(jda, "WGZimmer", announcer));
