@@ -65,7 +65,6 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
         }
         if (!isInitialized) {
             addInitialInsertions();
-            announcer.announce(currentInsertions.get(0));
             return;
         }
         addNewInsertions();

@@ -109,7 +109,8 @@ public class TestInsertionHandler {
         return Stream.of(
                 arguments(new MeinWGZimmerHandler(testingName, announcer, httpClient)),
                 arguments(new WGZimmerHandler(testingName, announcer, httpClient)),
-                arguments(new WOKOInsertionHandler(testingName, announcer, httpClient))
+                arguments(new WOKOInsertionHandler(testingName, announcer, httpClient)),
+                arguments(new FlatfoxHandler(testingName, announcer, httpClient))
         );
     }
 
@@ -118,7 +119,8 @@ public class TestInsertionHandler {
         return Stream.of(
                 arguments(new MeinWGZimmerHandler(testingName, announcer, client)),
                 arguments(new WGZimmerHandler(testingName, announcer, client)),
-                arguments(new WOKOInsertionHandler(testingName, announcer, client))
+                arguments(new WOKOInsertionHandler(testingName, announcer, client)),
+                arguments(new FlatfoxHandler(testingName, announcer, client))
         );
     }
 

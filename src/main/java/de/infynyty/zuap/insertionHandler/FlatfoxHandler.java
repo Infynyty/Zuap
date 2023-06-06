@@ -17,8 +17,9 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 public class FlatfoxHandler extends InsertionHandler<FlatfoxInsertion> {
-    public FlatfoxHandler(@NotNull JDA jda, @NotNull String handlerName, @NotNull InsertionAnnouncer announcer) {
-        super(jda, handlerName, announcer);
+
+    public FlatfoxHandler(@NotNull String handlerName, @NotNull InsertionAnnouncer announcer, @NotNull HttpClient httpClient) {
+        super(handlerName, announcer, httpClient);
     }
 
     @Override
@@ -37,17 +38,15 @@ public class FlatfoxHandler extends InsertionHandler<FlatfoxInsertion> {
     }
 
     private String getPins() throws IOException, InterruptedException {
-        final HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://flatfox.ch/api/v1/pin/?east=8.701075&max_count=30&north=47.434662&object_category=APARTMENT&object_category=SHARED&offer_type=RENT&ordering=-insertion&south=47.320258&west=8.372241"))
                 .build();
-        HttpResponse<String> response = client.send(
+        HttpResponse<String> response = getHttpClient().send(
                 request,
                 HttpResponse.BodyHandlers.ofString()
         );
         if (response.statusCode() > 299) {
-            Zuap.log(Level.WARNING, "Could not pull Pin data from Flatfox. Got the following response: ");
-            Zuap.log(Level.WARNING, response.body());
+            Zuap.log(Level.WARNING, "Could not pull Pin data from Flatfox. Got the following response: " + response.body());
             throw new HttpStatusException("Could not pull Pin data from Flatfox", response.statusCode(), request.uri().toString());
         }
         return response.body();
