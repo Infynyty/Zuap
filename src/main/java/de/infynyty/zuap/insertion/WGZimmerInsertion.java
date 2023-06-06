@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+@Deprecated
 @Log
 public class WGZimmerInsertion extends Insertion {
 

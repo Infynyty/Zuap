@@ -1,10 +1,12 @@
 package de.infynyty.zuap.insertionHandler;
 
+import de.infynyty.zuap.Zuap;
 import de.infynyty.zuap.insertion.FlatfoxInsertion;
 import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.jsoup.HttpStatusException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -12,6 +14,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 public class FlatfoxHandler extends InsertionHandler<FlatfoxInsertion> {
     public FlatfoxHandler(@NotNull JDA jda, @NotNull String handlerName, @NotNull InsertionAnnouncer announcer) {
@@ -42,6 +45,11 @@ public class FlatfoxHandler extends InsertionHandler<FlatfoxInsertion> {
                 request,
                 HttpResponse.BodyHandlers.ofString()
         );
+        if (response.statusCode() > 299) {
+            Zuap.log(Level.WARNING, "Could not pull Pin data from Flatfox. Got the following response: ");
+            Zuap.log(Level.WARNING, response.body());
+            throw new HttpStatusException("Could not pull Pin data from Flatfox", response.statusCode(), request.uri().toString());
+        }
         return response.body();
     }
 
@@ -60,6 +68,11 @@ public class FlatfoxHandler extends InsertionHandler<FlatfoxInsertion> {
                 request,
                 HttpResponse.BodyHandlers.ofString()
         );
+        if (response.statusCode() > 299) {
+            Zuap.log(Level.WARNING, "Could not pull insertion data from Flatfox. Got the following response: ");
+            Zuap.log(Level.WARNING, response.body());
+            throw new HttpStatusException("Could not pull insertion data from Flatfox", response.statusCode(), request.uri().toString());
+        }
 
         return response.body();
     }

@@ -17,6 +17,7 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
+@Deprecated
 public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
 
 
