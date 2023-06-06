@@ -2,7 +2,6 @@ package de.infynyty.zuap.insertionHandler;
 
 import de.infynyty.zuap.Zuap;
 import de.infynyty.zuap.insertion.MeinWGZimmerInsertion;
-import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,13 +17,12 @@ import java.util.logging.Level;
 public class MeinWGZimmerHandler extends InsertionHandler<MeinWGZimmerInsertion> {
 
 
-    public MeinWGZimmerHandler(@NotNull JDA jda, @NotNull String logPrefix, @NotNull InsertionAnnouncer announcer) {
-        super(jda, logPrefix, announcer);
+    public MeinWGZimmerHandler(@NotNull String logPrefix, @NotNull InsertionAnnouncer announcer, @NotNull HttpClient httpClient) {
+        super(logPrefix, announcer, httpClient);
     }
 
     @Override
     protected String pullUpdatedData() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create("https://api1.meinwgzimmer.ch/live/classes/Room"))
             .header("Accept", "*/*")
@@ -39,7 +37,7 @@ public class MeinWGZimmerHandler extends InsertionHandler<MeinWGZimmerInsertion>
                 + "\"_InstallationId\":\"3be15981-8be6-7000-c772-93faf54970e4\"}\n"))
             .build();
 
-        HttpResponse<String> response = client.send(
+        HttpResponse<String> response = getHttpClient().send(
             request,
             HttpResponse.BodyHandlers.ofString()
         );

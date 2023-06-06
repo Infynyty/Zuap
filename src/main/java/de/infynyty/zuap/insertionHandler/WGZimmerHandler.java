@@ -2,7 +2,6 @@ package de.infynyty.zuap.insertionHandler;
 
 import de.infynyty.zuap.Zuap;
 import de.infynyty.zuap.insertion.WGZimmerInsertion;
-import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
@@ -20,14 +19,13 @@ import java.util.logging.Level;
 public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
 
 
-    public WGZimmerHandler(@NotNull JDA jda, @NotNull String logPrefix, @NotNull InsertionAnnouncer announcer) {
-        super(jda, logPrefix, announcer);
+    public WGZimmerHandler(@NotNull String logPrefix, @NotNull InsertionAnnouncer announcer, @NotNull HttpClient httpClient) {
+        super(logPrefix, announcer, httpClient);
     }
 
     //TODO: Make it possible to change search variables
     @Override
     protected String pullUpdatedData() throws IOException, InterruptedException {
-        final HttpClient wgZimmerClient = HttpClient.newHttpClient();
         HttpRequest wgZimmerRequest = HttpRequest.newBuilder()
             .uri(URI.create("https://www.wgzimmer.ch/wgzimmer/search/mate.html?"))
             .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8")
@@ -37,7 +35,7 @@ public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
                 + "=all&student=true&typeofwg=all&orderBy=%40sortDate&orderDir=descending&startSearchMate=true&wgStartSearch=true&start=0"))
             .build();
 
-        HttpResponse<String> wgZimmerResponse = wgZimmerClient.send(wgZimmerRequest,
+        HttpResponse<String> wgZimmerResponse = getHttpClient().send(wgZimmerRequest,
             HttpResponse.BodyHandlers.ofString());
 
         if (wgZimmerResponse.statusCode() >= 299) {
