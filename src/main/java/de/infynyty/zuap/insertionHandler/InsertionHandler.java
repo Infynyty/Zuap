@@ -59,7 +59,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
         try {
             final String updatedData = pullUpdatedData();
             updatedInsertions.addAll(getInsertionsFromData(updatedData));
-        } catch (IOException | InterruptedException | IllegalStateException e) {
+        } catch (Exception e) {
             Zuap.log(Level.SEVERE, handlerName, "An exception occurred while trying to update the insertions. " + e.getMessage());
             return;
         }

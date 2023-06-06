@@ -4,7 +4,9 @@ import de.infynyty.zuap.Zuap;
 import de.infynyty.zuap.insertion.MeinWGZimmerInsertion;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.HttpStatusException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -42,12 +44,26 @@ public class MeinWGZimmerHandler extends InsertionHandler<MeinWGZimmerInsertion>
             HttpResponse.BodyHandlers.ofString()
         );
 
+        if (response.statusCode() >= 299) {
+            throw new HttpStatusException(
+                    "Failed to update MeinWGZimmer"
+                    , response.statusCode()
+                    , request.uri().toString()
+            );
+        }
+        if (response.body() == null) throw new IllegalStateException("Data received from MeinWGZimmer is null");
         return response.body();
     }
 
     @Override
-    protected ArrayList<MeinWGZimmerInsertion> getInsertionsFromData(final String data) throws IllegalStateException {
-        final JSONObject jsonObject = new JSONObject(data);
+    protected ArrayList<MeinWGZimmerInsertion> getInsertionsFromData(@NotNull final String data) throws IllegalStateException {
+        final JSONObject jsonObject;
+        try {
+            jsonObject = new JSONObject(data);
+        } catch (JSONException ex) {
+            throw new IllegalStateException("Unable to parse MeinWGZimmer data as JSON: " + ex.getMessage());
+        }
+        if (!jsonObject.has("results")) throw new IllegalStateException("MeinWGZimmer data does not have the required 'results' attribute.");
         final JSONArray rooms = jsonObject.getJSONArray("results");
         final ArrayList<MeinWGZimmerInsertion> insertions = new ArrayList<>();
         for (int i = 0; i < rooms.length(); i++) {

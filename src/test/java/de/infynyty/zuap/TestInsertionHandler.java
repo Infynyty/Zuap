@@ -3,6 +3,7 @@ package de.infynyty.zuap;
 
 import de.infynyty.zuap.insertion.Insertion;
 import de.infynyty.zuap.insertionHandler.*;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,11 +46,6 @@ public class TestInsertionHandler {
     @Spy
     public static HttpResponse<String> response;
 
-    @BeforeEach
-    public void init() {
-        announcer = Mockito.spy(InsertionAnnouncer.class);
-    }
-
 
     @ParameterizedTest
     @MethodSource("provideHandlers")
@@ -61,7 +57,6 @@ public class TestInsertionHandler {
     @MethodSource("provideHandlers")
     public void testDeniedRequest(InsertionHandler<?> insertionHandler) throws IOException, InterruptedException {
         when(response.statusCode()).thenReturn(400);
-        when(response.body()).thenReturn("");
         when(httpClient.send(ArgumentMatchers.any(), ArgumentMatchers.<HttpResponse.BodyHandler<String>>any())).thenReturn(response);
 
         try {

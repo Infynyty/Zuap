@@ -3,6 +3,7 @@ package de.infynyty.zuap.insertionHandler;
 import de.infynyty.zuap.Zuap;
 import de.infynyty.zuap.insertion.WOKOInsertion;
 import org.jetbrains.annotations.NotNull;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -30,6 +31,14 @@ public class WOKOInsertionHandler extends InsertionHandler<WOKOInsertion> {
             .build();
 
         HttpResponse<String> response = getHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() >= 299) {
+            throw new HttpStatusException(
+                    "Failed to update WOKO"
+                    , response.statusCode()
+                    , request.uri().toString()
+            );
+        }
 
         return response.body();
     }
