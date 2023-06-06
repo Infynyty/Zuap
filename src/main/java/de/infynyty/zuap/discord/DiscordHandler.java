@@ -67,6 +67,7 @@ public class DiscordHandler implements InsertionAnnouncer {
         }
         try {
             channel.sendMessage(insertion.toMessage()).queue();
+            Zuap.log(Level.INFO, "Found new insertion: " + insertion);
         } catch (Exception ex) {
             Zuap.log(Level.SEVERE, "Cannot display new insertion on Discord, because an error occurred while sending the message.");
             Zuap.log(Level.SEVERE, ex.getMessage());

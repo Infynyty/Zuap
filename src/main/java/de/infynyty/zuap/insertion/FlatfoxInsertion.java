@@ -75,10 +75,10 @@ public class FlatfoxInsertion extends Insertion {
 
     @Override
     protected @Range(from = RENT_UNDEFINED, to = Integer.MAX_VALUE) int setRent() {
-        if (!super.getJsonObject().has("rent_gross") || super.getJsonObject().isNull("rent_gross")) {
+        if (!super.getJsonObject().has("price_display") || super.getJsonObject().isNull("price_display")) {
             return RENT_UNDEFINED;
         }
-        return super.getJsonObject().getInt("rent_gross");
+        return super.getJsonObject().getInt("price_display");
     }
 
     private String setAddress() {
