@@ -87,7 +87,7 @@ public class WOKOInsertion extends Insertion {
 
 
     @Override
-    protected @NotNull Date setMoveInDate() {
+    protected @Nullable Date setMoveInDate() {
         final Pattern pattern = Pattern.compile("(3[01]|[12][0-9]|0?[1-9])\\.(1[012]|0?[1-9])\\.((?:19|20)\\d{2})");
         final Matcher matcher = pattern.matcher(super.getElement().html());
         final String stringDate = matcher.results().toList().get(1).group();

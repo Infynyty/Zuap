@@ -43,7 +43,7 @@ public abstract class Insertion {
 
     @NotNull
     protected final URI insertionURI;
-    @NotNull
+    @Nullable
     private final Date moveInDate;
     @Range(from = RENT_UNDEFINED, to = Integer.MAX_VALUE)
     private final int rent;
@@ -123,7 +123,7 @@ public abstract class Insertion {
      *
      * @return A date.
      */
-    @NotNull
+    @Nullable
     protected abstract Date setMoveInDate();
 
     /**
@@ -201,9 +201,9 @@ public abstract class Insertion {
     @Override
     public String toString() {
         final StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Insertion: {Link: ").append(insertionURI)
-                .append(" ; Move-In Date: ")
-                .append(new SimpleDateFormat("dd.MM.yyyy").format(moveInDate));
+        stringBuilder.append("Insertion: {Link: ")
+                    .append(insertionURI)
+                    .append(" ; ");
         for (final String keys : properties.keySet()) {
             if (properties.get(keys).isEmpty()) continue;
             stringBuilder.append("; ").append(keys).append(": ").append(properties.get(keys));
