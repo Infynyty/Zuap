@@ -37,7 +37,6 @@ public class Zuap {
     private static void parseWebsiteData(final InsertionAnnouncer announcer){
         final HttpClient httpClient = HttpClient.newHttpClient();
         handlers.add(new WOKOInsertionHandler("WOKO", announcer, httpClient));
-        handlers.add(new WGZimmerHandler("WGZimmer", announcer, httpClient));
         handlers.add(new MeinWGZimmerHandler("MeinWGZimmer", announcer, httpClient));
         handlers.add(new FlatfoxHandler("Flatfox", announcer, httpClient));
 
