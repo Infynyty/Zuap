@@ -39,6 +39,7 @@ public class Zuap {
         handlers.add(new WOKOInsertionHandler("WOKO", announcer, httpClient));
         handlers.add(new MeinWGZimmerHandler("MeinWGZimmer", announcer, httpClient));
         handlers.add(new FlatfoxHandler("Flatfox", announcer, httpClient));
+        handlers.add(new WGZimmerHandler("WGZimmer", announcer, httpClient));
 
 
         handlers.forEach(handler -> {

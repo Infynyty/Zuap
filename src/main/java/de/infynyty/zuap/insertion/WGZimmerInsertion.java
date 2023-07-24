@@ -15,11 +15,9 @@ import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-@Deprecated
 @Log
 public class WGZimmerInsertion extends Insertion {
 
-    private static final String PRICE_PREFIX = "SFr. ";
     private static final String PROTOCOL = "https://";
     private static final String DOMAIN = "www.wgzimmer.ch";
 
@@ -31,7 +29,7 @@ public class WGZimmerInsertion extends Insertion {
     @Override
     protected @NotNull URI setInsertionURI() throws IllegalStateException {
         try {
-            return new URI(PROTOCOL + DOMAIN + super.getElement().getElementsByTag("a").get(1).attr("href"));
+            return new URI(PROTOCOL + DOMAIN + super.getElement().getElementsByTag("a").get(0).attr("href"));
         } catch (IndexOutOfBoundsException | URISyntaxException e) {
             throw new IllegalStateException("URI to insertion could not be parsed.\n\n" + e.getMessage());
         }
@@ -40,24 +38,24 @@ public class WGZimmerInsertion extends Insertion {
     @Override
     protected SortedMap<String, Optional<String>> setProperties() {
         SortedMap<String, Optional<String>> map = new TreeMap<>();
+        map.put("Region", Optional.of(setRegion()));
         map.put("Rent", Optional.of(String.valueOf(setRent())));
         map.put("Move-in Date", Optional.of(new SimpleDateFormat("dd.MM.yyyy").format(setMoveInDate())));
         map.put("Next Tenant Wanted", Optional.of(setIsNewTenantWanted() ? "Yes" : "No"));
         return map;
     }
 
+    private String setRegion() {
+        Element strongElement = super.getElement().select("span.thumbState strong").first();
+        String strongText = strongElement.text();
+        String textUntilBr = strongElement.parent().ownText().trim();
+        return strongText + ", " + textUntilBr;
+    }
+
     @Override
     protected int setRent() {
         final Elements priceElements = super.getElement().getElementsByClass("cost");
         String price = priceElements.text();
-        try {
-            price = price.substring(PRICE_PREFIX.length());
-        } catch (IndexOutOfBoundsException e) {
-            log.severe("Rent could not be parsed because of an incorrectly formatted string");
-            log.severe("Rent string: \n\n" + price + "\n\n");
-            log.severe("HTML: \n\n" + super.getElement());
-            return -1;
-        }
         try {
             return (int) Float.parseFloat(price);
         } catch (NumberFormatException e) {
