@@ -44,6 +44,11 @@ public class Zuap {
         handlers.forEach(handler -> {
             final Thread t = new Thread(() -> {
                 Zuap.log(Level.CONFIG, "Started new thread for " + handler.getClass());
+                try {
+                    handler.loadFromDisk();
+                } catch (IOException e) {
+                    Zuap.log(Level.SEVERE, "Could not load data from disk for " + handler.getClass());
+                }
                 while (true) {
                     try {
                         handler.updateCurrentInsertions();

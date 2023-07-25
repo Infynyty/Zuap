@@ -6,6 +6,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -58,6 +60,7 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
         updatedInsertions.clear();
         try {
             final String updatedData = pullUpdatedData();
+            saveToDisk(updatedData);
             updatedInsertions.addAll(getInsertionsFromData(updatedData));
         } catch (Exception e) {
             Zuap.log(Level.SEVERE, handlerName, "An exception occurred while trying to update the insertions. " + e.getMessage());
@@ -74,6 +77,20 @@ public abstract class InsertionHandler<Insertion extends de.infynyty.zuap.insert
                 handlerName,
                 "Insertions updated at " + Date.from(Instant.now()) + ", numbers of insertions: " + updatedInsertions.size()
         );
+    }
+
+    private Path getHandlerDataPath() {
+        return Path.of(handlerName + ".handlerData");
+    }
+
+    public void loadFromDisk() throws IOException {
+        final String data = Files.readString(getHandlerDataPath());
+        currentInsertions.addAll(getInsertionsFromData(data));
+        isInitialized = true;
+    }
+
+    public void saveToDisk(String data) throws IOException {
+        Files.writeString(getHandlerDataPath(), data);
     }
 
     /**
