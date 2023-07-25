@@ -7,8 +7,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.http.HttpClient;
@@ -26,7 +30,10 @@ public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
     //TODO: Make it possible to change search variables
     @Override
     protected String pullUpdatedData() {
-        ChromeDriver driver = new ChromeDriver();
+        var options = new FirefoxOptions();
+        options.addArguments("--headless");
+        var driver = new FirefoxDriver(options);
+
         driver.get("https://www.wgzimmer.ch/wgzimmer/search/mate.html");
 
         WebElement priceMinSelect = driver.findElement(By.name("priceMin"));
@@ -41,11 +48,33 @@ public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
         searchButton.click();
 
         var wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(webDriver -> webDriver.findElement(By.className("search-result-entry")));
+        ExpectedCondition<WebElement> condition = driver1 -> {
+            WebElement entry = findElementSafely(driver1, By.className("search-result-entry"));
+            if (entry != null) {
+                return entry;
+            }
+
+            WebElement captchaFail = findElementSafely(driver1, By.xpath("//div[@class='text no-link']/h1"));
+            return captchaFail;
+        };
+        WebElement element = wait.until(condition);
+        if (element.getTagName().equals("h1")) {
+            driver.quit();
+            Zuap.log(Level.SEVERE, getHandlerName(), "Captcha failed!");
+            throw new RuntimeException("Captcha failed!");
+        }
         var html = driver.getPageSource();
         driver.quit();
 
         return html;
+    }
+
+    private static WebElement findElementSafely(WebDriver driver, By by) {
+        try {
+            return driver.findElement(by);
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
 
     @Override
