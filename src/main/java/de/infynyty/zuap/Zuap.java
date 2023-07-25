@@ -39,7 +39,9 @@ public class Zuap {
         handlers.add(new WOKOInsertionHandler("WOKO", announcer, httpClient));
         handlers.add(new MeinWGZimmerHandler("MeinWGZimmer", announcer, httpClient));
         handlers.add(new FlatfoxHandler("Flatfox", announcer, httpClient));
-        handlers.add(new WGZimmerHandler("WGZimmer", announcer, httpClient));
+        if (!getNoWGZimmer()) {
+            handlers.add(new WGZimmerHandler("WGZimmer", announcer, httpClient));
+        }
 
 
         handlers.forEach(handler -> {
@@ -57,6 +59,10 @@ public class Zuap {
             t.setName(handler.getHandlerName());
             t.start();
         });
+    }
+
+    public static boolean getNoWGZimmer() {
+        return Boolean.parseBoolean(dotenv.get("NO_WGZIMMER"));
     }
 
     public static long getLogChannelId() {
