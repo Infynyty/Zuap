@@ -38,4 +38,5 @@ You can then compile the project using `mvn clean install`. Afterwards run `java
 WGZimmer uses reCAPTCHA to prevent bots from scraping their website. To bypass this, selenium is used.
 You need to install firefox and the geckodriver for selenium to work.
 Even then, reCAPTCHA gets triggered in some cases (i.e. it works on my desktop, but not on my server).
-If you encounter this problem, you can add `NO_WGZIMMER=true` to your `.env` file to disable WGZimmer scraping.
+Because of this, WGZimmer scraping is disabled by default.
+If you want to enable it, you can add `ENABLED_WGZIMMER=true` to your `.env` file.
