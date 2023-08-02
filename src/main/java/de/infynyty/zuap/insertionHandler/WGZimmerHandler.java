@@ -53,9 +53,14 @@ public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
         final WebElement priceMaxSelect = driver.findElement(By.name("priceMax"));
         final WebElement wgStateSelect = driver.findElement(By.name("wgState"));
 
-        priceMinSelect.sendKeys(String.valueOf(minPrice));
-        priceMaxSelect.sendKeys(String.valueOf(maxPrice));
-        wgStateSelect.sendKeys(wgState);
+        try {
+            priceMinSelect.sendKeys(String.valueOf(minPrice));
+            priceMaxSelect.sendKeys(String.valueOf(maxPrice));
+            wgStateSelect.sendKeys(wgState);
+        } catch (IllegalArgumentException e) {
+            driver.quit();
+            throw new RuntimeException("Website layout changed!");
+        }
 
         final WebElement searchButton = driver.findElement(By.xpath("//input[@value='Suchen']"));
         searchButton.click();
