@@ -12,7 +12,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
-import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.http.HttpClient;
@@ -22,30 +21,20 @@ import java.util.logging.Level;
 
 public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
     
-    private final int minPrice = 200;
-    private final int maxPrice = 1500;
-    private final String wgState = "all";
+    private static final int MIN_PRICE = 200;
+    private static final int MAX_PRICE = 1500;
+    private static final String WG_STATE = "all";
 
     public WGZimmerHandler(@NotNull String logPrefix, @NotNull InsertionAnnouncer announcer, @NotNull HttpClient httpClient) {
         super(logPrefix, announcer, httpClient);
-    }
-    
-    private static WebElement condition(WebDriver driver) {
-        WebElement entry = findElementSafely(driver, By.className("search-result-entry"));
-        if (entry != null) {
-            return entry;
-        }
-
-        final WebElement captchaFail = findElementSafely(driver, By.xpath("//div[@class='text no-link']/h1"));
-        return captchaFail;
     }
 
     //TODO: Make it possible to change search variables
     @Override
     protected String pullUpdatedData() {
-        FirefoxOptions options = new FirefoxOptions();
+        final FirefoxOptions options = new FirefoxOptions();
         options.addArguments("--headless");
-        FirefoxDriver driver = new FirefoxDriver(options);
+        final FirefoxDriver driver = new FirefoxDriver(options);
 
         driver.get("https://www.wgzimmer.ch/wgzimmer/search/mate.html");
 
@@ -54,9 +43,9 @@ public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
         final WebElement wgStateSelect = driver.findElement(By.name("wgState"));
 
         try {
-            priceMinSelect.sendKeys(String.valueOf(minPrice));
-            priceMaxSelect.sendKeys(String.valueOf(maxPrice));
-            wgStateSelect.sendKeys(wgState);
+            priceMinSelect.sendKeys(String.valueOf(MIN_PRICE));
+            priceMaxSelect.sendKeys(String.valueOf(MAX_PRICE));
+            wgStateSelect.sendKeys(WG_STATE);
         } catch (IllegalArgumentException e) {
             driver.quit();
             throw new RuntimeException("Website layout changed!");
@@ -65,16 +54,24 @@ public class WGZimmerHandler extends InsertionHandler<WGZimmerInsertion> {
         final WebElement searchButton = driver.findElement(By.xpath("//input[@value='Suchen']"));
         searchButton.click();
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        final WebElement element = wait.until(WGZimmerHandler::condition);
+        final WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        final WebElement element = wait.until(WGZimmerHandler::isPageLoaded);
         if (element.getTagName().equals("h1")) {
             driver.quit();
             throw new RuntimeException("Captcha failed!");
         }
-        String html = driver.getPageSource();
+        final String html = driver.getPageSource();
         driver.quit();
 
         return html;
+    }
+
+    private static WebElement isPageLoaded(WebDriver driver) {
+        final WebElement entry = findElementSafely(driver, By.className("search-result-entry"));
+        if (entry != null) {
+            return entry;
+        }
+        return findElementSafely(driver, By.xpath("//div[@class='text no-link']/h1"));
     }
 
     private static WebElement findElementSafely(WebDriver driver, By by) {

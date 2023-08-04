@@ -25,18 +25,19 @@ Before installing the app, you will need:
 
 To install this app you need maven. Clone the repository onto your local machine using git. You then need to create a `.env` file in the root project folder
 which should contain your _secret_ discord API token (do not publish), as well as the channel IDs for the main (used to post new insertions) and the logging 
-channel (used for programm logs) of your Discord server. The format should look exactly like this:
+channel (used for program logs) of your Discord server. The format should look exactly like this, optional parameters are marked by parentheses, which you
+have to leave out in the actual file:
 
     TOKEN=YOURTOKENHEREWITHOUTQUOTES
     MAIN_CHANNEL_ID=IDHERE
     LOG_CHANNEL_ID=IDHERE
+    (ENABLE_WGZIMMER=true)
 
 You can then compile the project using `mvn clean install`. Afterwards run `java -jar target/Zuap-jar-with-dependencies.jar` in a terminal to execute the program.
 
 ### WGZimmer
 
-WGZimmer uses reCAPTCHA to prevent bots from scraping their website. To bypass this, selenium is used.
-You need to install firefox and the geckodriver for selenium to work.
-Even then, reCAPTCHA gets triggered in some cases (i.e. it works on my desktop, but not on my server).
-Because of this, WGZimmer scraping is disabled by default.
-If you want to enable it, you can add `ENABLED_WGZIMMER=true` to your `.env` file.
+WGZimmer uses reCAPTCHA on their website which requires Zuap to use Selenium.
+You need to install Firefox and the Geckodriver for Selenium to work.
+Even then, reCAPTCHA gets triggered in some cases, which is why WGZimmer scraping is disabled by default.
+If you want to enable it, you can add `ENABLE_WGZIMMER=true` to your `.env` file.

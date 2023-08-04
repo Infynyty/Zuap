@@ -62,7 +62,7 @@ public class Zuap {
     }
 
     public static boolean isWGZimmerEnabled() {
-        return Boolean.parseBoolean(dotenv.get("ENABLE_WGZIMMER"));
+        return Boolean.parseBoolean(dotenv.get("ENABLE_WGZIMMER", "false"));
     }
 
     public static long getLogChannelId() {
