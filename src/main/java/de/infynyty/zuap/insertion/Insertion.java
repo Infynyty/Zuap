@@ -145,7 +145,7 @@ public abstract class Insertion {
     }
 
     public Message toMessage() {
-        if (!JSONLINK_KEY.isEmpty()) {
+        if (JSONLINK_KEY == null || !JSONLINK_KEY.isEmpty()) {
             return toMessageWithLinkPreview();
         } else {
             log.log(Level.WARNING, "Missing JsonLink API key.");
