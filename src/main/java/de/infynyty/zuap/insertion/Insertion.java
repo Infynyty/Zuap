@@ -1,5 +1,7 @@
 package de.infynyty.zuap.insertion;
 
+import io.github.cdimascio.dotenv.Dotenv;
+import io.opentelemetry.api.trace.StatusCode;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -7,6 +9,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import org.asynchttpclient.util.HttpConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
@@ -22,6 +25,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Level;
 
 /**
  * This class contains all information for an insertion on the  <a href="https://www.woko.ch">WOKO platform</a>.
@@ -34,6 +38,7 @@ public abstract class Insertion {
 
     protected static final int RENT_UNDEFINED = -1;
     private static final int MAX_DESCRIPTION_LENGTH = 200;
+    private static final String JSONLINK_KEY = Dotenv.load().get("JSONLINK_KEY");
 
     @Nullable
     private Element element;
@@ -53,6 +58,9 @@ public abstract class Insertion {
 
     @NotNull
     private final SortedMap<String, Optional<String>> properties;
+
+    @Nullable
+    private String jsonlinkKey;
 
     /**
      * Constructs a new insertion object from a given html string. This constructor should be used when there is no
@@ -137,10 +145,33 @@ public abstract class Insertion {
     }
 
     public Message toMessage() {
+        if (!JSONLINK_KEY.isEmpty()) {
+            return toMessageWithLinkPreview();
+        } else {
+            log.log(Level.WARNING, "Missing JsonLink API key.");
+            return toMessageWithoutLinkPreview();
+        }
 
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Insertion: {Link: ")
+                    .append(insertionURI)
+                    .append(" ; ");
+        for (final String keys : properties.keySet()) {
+            if (properties.get(keys).isEmpty()) continue;
+            stringBuilder.append("; ").append(keys).append(": ").append(properties.get(keys));
+        }
+        stringBuilder.append(";}");
+        return stringBuilder.toString();
+    }
+
+    private Message toMessageWithLinkPreview() {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://jsonlink.io/api/extract?url=" + insertionURI))
+                .uri(URI.create("https://jsonlink.io/api/extract?url=" + insertionURI + "&api_key=" + JSONLINK_KEY))
                 .build();
 
         HttpResponse<String> response;
@@ -151,6 +182,11 @@ public abstract class Insertion {
             );
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
+        }
+
+        if (response.statusCode() != HttpConstants.ResponseStatusCodes.OK_200) {
+            log.log(Level.WARNING, "Error response from JsonLink, is your API key correct?");
+            return toMessageWithoutLinkPreview();
         }
 
         final JSONObject jsonObject = new JSONObject(response.body());
@@ -198,18 +234,24 @@ public abstract class Insertion {
         return messageBuilder.build();
     }
 
-    @Override
-    public String toString() {
-        final StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Insertion: {Link: ")
-                    .append(insertionURI)
-                    .append(" ; ");
+    private Message toMessageWithoutLinkPreview() {
+        MessageBuilder messageBuilder = new MessageBuilder();
+        final Button linkButton = Button.link(String.valueOf(insertionURI), "Insertion Link");
+        final Button reportButton = Button.link("https://github.com/Infynyty/Zuap/issues", "Report Issues");
+        final ActionRow actionRow = ActionRow.of(linkButton, reportButton);
+
+        messageBuilder.setActionRows(actionRow);
+
+        final EmbedBuilder builder = new EmbedBuilder();
+
         for (final String keys : properties.keySet()) {
             if (properties.get(keys).isEmpty()) continue;
-            stringBuilder.append("; ").append(keys).append(": ").append(properties.get(keys));
+            builder.addField(keys, properties.get(keys).get(), false);
         }
-        stringBuilder.append(";}");
-        return stringBuilder.toString();
+        builder.setTitle("New Insertion On " + insertionURI.getHost(), insertionURI.toString()).setColor(Color.getHSBColor(0.35f, 0.76f, 0.78f));
+        messageBuilder.setEmbeds(builder.build());
+
+        return messageBuilder.build();
     }
 
     @Override

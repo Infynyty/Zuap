@@ -31,6 +31,7 @@ have to leave out in the actual file:
     TOKEN=YOURTOKENHEREWITHOUTQUOTES
     MAIN_CHANNEL_ID=IDHERE
     LOG_CHANNEL_ID=IDHERE
+    (JSONLINK_KEY=KEY)
     (ENABLE_WGZIMMER=true)
 
 You can then compile the project using `mvn clean install`. Afterwards run `java -jar target/Zuap-jar-with-dependencies.jar` in a terminal to execute the program.
@@ -41,3 +42,8 @@ WGZimmer uses reCAPTCHA on their website which requires Zuap to use Selenium.
 You need to install Firefox and the Geckodriver for Selenium to work.
 Even then, reCAPTCHA gets triggered in some cases, which is why WGZimmer scraping is disabled by default.
 If you want to enable it, you can add `ENABLE_WGZIMMER=true` to your `.env` file.
+
+### JsonLink
+
+Zuap uses JsonLink to gather preview information for a given link which will make the embeds look nicer. To enable this
+feature get a free API key [here](https://jsonlink.io/) and add the `JSONLINK_KEY` entry to your `.env` file. This is optional.
